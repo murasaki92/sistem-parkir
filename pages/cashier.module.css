@@ -1,0 +1,1 @@
+.page{min-height:100vh;background:var(--background);padding:28px;max-width:1450px;margin:0 auto}.page:before{content:"PARKLINE / KASIR";display:block;font:600 9px var(--font-family-monospace);letter-spacing:.14em;color:var(--muted-foreground);margin-bottom:16px}@media(max-width:620px){.page{padding:18px}}
