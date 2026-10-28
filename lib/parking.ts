@@ -186,6 +186,9 @@ export type TicketQuote = {
   hours: number;
   baseFee: number;
   fee: number;
+  entryCameraUrl: string | null;
+  entryCameraSnapshotUrl: string | null;
+  entryGateCode: string | null;
   membership: {
     memberId: number;
     memberName: string;
@@ -242,6 +245,20 @@ export function buildQuote(
     fee = Number(ticket.fee);
   }
 
+  let entryCameraUrl: string | null = null;
+  let entryCameraSnapshotUrl: string | null = null;
+  if (ticket.entry_device_code) {
+    const camera = db
+      .prepare(
+        "SELECT camera_url, camera_snapshot_url FROM devices WHERE UPPER(device_code) = ? LIMIT 1",
+      )
+      .get(ticket.entry_device_code.toUpperCase()) as
+      | { camera_url: string | null; camera_snapshot_url: string | null }
+      | undefined;
+    entryCameraUrl = camera?.camera_url || null;
+    entryCameraSnapshotUrl = camera?.camera_snapshot_url || null;
+  }
+
   return {
     ticketNo: ticket.ticket_no,
     plateNumber: ticket.plate_number,
@@ -250,6 +267,9 @@ export function buildQuote(
     hours,
     baseFee,
     fee,
+    entryCameraUrl,
+    entryCameraSnapshotUrl,
+    entryGateCode: ticket.entry_device_code,
     membership: member
       ? {
           memberId: member.memberId,

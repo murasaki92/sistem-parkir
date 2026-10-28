@@ -12,11 +12,15 @@ aplikasi Next.js lengkap dengan database SQLite lokal.
 ## Fitur
 
 - Login berbasis role: Admin, Supervisor, Kasir, Operator, Viewer.
-- Terminal kasir: cari tiket/QR, hitung tarif, update plat, ubah kelas kendaraan, bayar, cetak struk.
-- Live Gate Out di kasir: feed kamera/snapshot, status gate & barrier, kendaraan
-  terakhir keluar, command terakhir, dan riwayat keluar.
-- Layout kasir satu layar penuh (diuji 1366×768 dan 1280×720) tanpa scroll
-  halaman: live gate, tiket, kelas kendaraan, pembayaran, dan struk dialog.
+- Terminal kasir gaya POS satu layar penuh (diuji 1366×768 dan 1280×720):
+  input barcode/plat, kelas kendaraan, verifikasi visual, transaksi terakhir,
+  rincian pembayaran, kembalian, dan struk dialog.
+- Verifikasi visual: foto kedatangan (snapshot kamera gate masuk bila
+  dikonfigurasi) dan kamera gate keluar live.
+- Shortcut kasir: **F1 Motor, F2 Mobil, F3 Bus/Truk, F4 perbesar foto,
+  T Tunai, Q QRIS, K Kartu**.
+- Live Gate Out: status gate/barrier, heartbeat, feed kamera, command perangkat,
+  dan riwayat transaksi keluar.
 - Shift kasir: saldo awal, expected cash, selisih saat tutup shift.
 - Gate masuk idempotent per `eventId`, alokasi slot otomatis, tiket + QR.
 - Command queue perangkat: barrier, kamera, printer, heartbeat, retry.
