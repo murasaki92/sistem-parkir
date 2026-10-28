@@ -145,6 +145,29 @@ async function main() {
     `tagihan dihitung (Rp${quote.body?.fee?.toLocaleString("id-ID")})`,
   );
 
+  const classChange = await request("/api/parking/vehicleClass", {
+    method: "POST",
+    cookie,
+    body: { ticketNo, vehicleType: "Bus/Truk" },
+  });
+  check(
+    classChange.status === 200 &&
+      classChange.body?.vehicleType === "Bus/Truk" &&
+      Number(classChange.body?.fee) === 10000,
+    "kelas kendaraan berubah ke Bus/Truk (Rp10.000)",
+  );
+  const classRevert = await request("/api/parking/vehicleClass", {
+    method: "POST",
+    cookie,
+    body: { ticketNo, vehicleType: "Mobil" },
+  });
+  check(
+    classRevert.status === 200 &&
+      classRevert.body?.vehicleType === "Mobil" &&
+      Number(classRevert.body?.fee) === 5000,
+    "kelas kendaraan kembali ke Mobil (Rp5.000)",
+  );
+
   const plate = await request("/api/parking/plateUpdate", {
     method: "POST",
     cookie,

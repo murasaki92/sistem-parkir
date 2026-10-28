@@ -49,7 +49,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const planId = asInt(body.planId, 0);
     if (!name) return fail(res, 400, "Nama member wajib diisi.");
     if (!plateNumber) return fail(res, 400, "Nomor plat wajib diisi.");
-    if (!["Mobil", "Motor"].includes(vehicleType)) {
+    if (!["Mobil", "Motor", "Bus/Truk"].includes(vehicleType)) {
       return fail(res, 400, "Jenis kendaraan tidak valid.");
     }
     const plan = planById(planId);
@@ -125,7 +125,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const plateNumber = asString(body.plateNumber).toUpperCase();
     const vehicleType = asString(body.vehicleType, "Mobil");
     if (!plateNumber) return fail(res, 400, "Nomor plat wajib diisi.");
-    if (!["Mobil", "Motor"].includes(vehicleType)) {
+    if (!["Mobil", "Motor", "Bus/Truk"].includes(vehicleType)) {
       return fail(res, 400, "Jenis kendaraan tidak valid.");
     }
     const duplicate = db

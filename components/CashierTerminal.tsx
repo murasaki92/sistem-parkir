@@ -12,12 +12,19 @@ import styles from "./CashierTerminal.module.css";
 
 const rupiah = (value: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
 
+const VEHICLE_CLASSES = [
+  { value: "Motor", label: "Motor", shortcut: "F1" },
+  { value: "Mobil", label: "Mobil", shortcut: "F2" },
+  { value: "Bus/Truk", label: "Bus/Truk", shortcut: "F3" },
+] as const;
+
 export function CashierTerminal() {
   const [ticketNo, setTicketNo] = useState("");
   const [quote, setQuote] = useState<any>(null);
   const [scanKind, setScanKind] = useState<"ticket" | "qr" | null>(null);
   const [plateInput, setPlateInput] = useState("");
   const [plateSaving, setPlateSaving] = useState(false);
+  const [classBusy, setClassBusy] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentReference, setPaymentReference] = useState("");
   const [exitDeviceCode, setExitDeviceCode] = useState("__manual");
@@ -46,7 +53,24 @@ export function CashierTerminal() {
   };
 
   useEffect(() => {
-    fetch("/api/parking/devices").then(r => r.json()).then(j => setDevices(Array.isArray(j) ? j : [])).catch(() => setDevices([]));
+    fetch("/api/parking/devices")
+      .then((r) => r.json())
+      .then((j) => {
+        const list = Array.isArray(j) ? j : [];
+        setDevices(list);
+        const firstGate = list.find(
+          (device: any) =>
+            device.status === "active" &&
+            device.deviceType === "gate" &&
+            device.gateDirection === "out",
+        );
+        if (firstGate) {
+          setExitDeviceCode((current) =>
+            current === "__manual" ? firstGate.deviceCode : current,
+          );
+        }
+      })
+      .catch(() => setDevices([]));
     loadShift();
   }, []);
 
@@ -87,6 +111,42 @@ export function CashierTerminal() {
       setQuote(next); setPlateInput(String(next.plateNumber||""));
     } catch(e){setError(e instanceof Error?e.message:"Gagal menyimpan plat");} finally{setPlateSaving(false);}
   };
+
+  const changeVehicleClass = async (vehicleType: string) => {
+    if (!quote || classBusy || quote.vehicleType === vehicleType) return;
+    setClassBusy(true); setError("");
+    try {
+      const r = await fetch("/api/parking/vehicleClass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketNo: quote.ticketNo, vehicleType }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Gagal mengubah kelas kendaraan");
+      setQuote(j);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Gagal mengubah kelas kendaraan");
+    } finally {
+      setClassBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!quote || classBusy || shiftOpenDialog || shiftCloseDialog) return;
+      const next: Record<string, string> = {
+        F1: "Motor",
+        F2: "Mobil",
+        F3: "Bus/Truk",
+      };
+      const vehicleType = next[event.key];
+      if (!vehicleType) return;
+      event.preventDefault();
+      changeVehicleClass(vehicleType);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [quote, classBusy, shiftOpenDialog, shiftCloseDialog]);
 
   const pay = async () => {
     if (!quote) return;
@@ -131,7 +191,11 @@ export function CashierTerminal() {
       <div className={styles.shiftActions}>{shift ? <Button variant="outline" onClick={()=>setShiftCloseDialog(true)}>Tutup shift</Button> : <Button onClick={()=>setShiftOpenDialog(true)} disabled={!shiftLoaded}>Buka shift</Button>}</div>
     </section>
     {shiftError && <div className={styles.error}><XCircle size={16}/>{shiftError}</div>}
-    <GateOutLive deviceCode={liveGateCode} />
+    <GateOutLive
+      deviceCode={liveGateCode}
+      gates={gates.map((gate) => ({ deviceCode: gate.deviceCode, name: gate.name }))}
+      onDeviceChange={setExitDeviceCode}
+    />
     <div className={styles.workflow}>
       <section className={styles.step}>
         <div className={styles.stepTitle}><span>01</span><div><strong>Identifikasi tiket</strong><small>Scan QR / barcode; nomor tiket atau token QR sama-sama diterima.</small></div></div>
@@ -141,6 +205,27 @@ export function CashierTerminal() {
       </section>
       <section className={styles.step}>
         <div className={styles.stepTitle}><span>02</span><div><strong>Verifikasi tagihan</strong><small>Biaya dihitung dari waktu masuk dan tarif aktif</small></div></div>
+        <div className={styles.classPicker}>
+          <div className={styles.classPickerHead}>
+            <span>Kelas kendaraan</span>
+            <small>{classBusy ? "Menyimpan…" : "F1 Motor · F2 Mobil · F3 Bus/Truk"}</small>
+          </div>
+          <div className={styles.classButtons}>
+            {VEHICLE_CLASSES.map((vehicle) => (
+              <Button
+                key={vehicle.value}
+                size="sm"
+                variant={quote?.vehicleType === vehicle.value ? "secondary" : "outline"}
+                onClick={() => changeVehicleClass(vehicle.value)}
+                disabled={!quote || classBusy}
+                aria-pressed={quote?.vehicleType === vehicle.value}
+              >
+                <kbd>{vehicle.shortcut}</kbd>
+                {vehicle.label}
+              </Button>
+            ))}
+          </div>
+        </div>
         {quote ? <div className={styles.quote}><div><span>Tiket</span><strong>{quote.ticketNo}</strong></div><label className={styles.plateField}><span>Nomor plat kendaraan</span><div><Input value={plateInput} onChange={e=>setPlateInput(e.target.value.toUpperCase())} placeholder="DD 1234 XX"/><Button size="sm" variant="outline" onClick={savePlate} disabled={plateSaving || !plateInput.trim()}>{plateSaving?"Menyimpan…":"Simpan plat"}</Button></div></label>{quote.membership && <div className={styles.memberBox}><strong>✓ MEMBER AKTIF · {quote.membership.memberName}</strong><span>{quote.membership.planName} · berlaku sampai {new Date(quote.membership.expiresAt).toLocaleDateString("id-ID")}</span></div>}<div><span>Kendaraan</span><strong>{quote.vehicleType || "—"}</strong></div><div><span>Durasi</span><strong>{quote.minutes} menit · {quote.hours} jam tagihan</strong></div>{quote.baseFee!==undefined && quote.membership && <div><span>Tarif normal</span><strong>{rupiah(Number(quote.baseFee||0))}</strong></div>}<div className={styles.total}><span>Total</span><strong>{rupiah(Number(quote.fee || 0))}</strong></div></div> : <div className={styles.empty}>Belum ada tiket yang diverifikasi.</div>}
       </section>
       <section className={styles.step}>
@@ -148,7 +233,6 @@ export function CashierTerminal() {
         <div className={styles.methods}>{[["cash","Tunai",Banknote],["qris","QRIS",QrCode],["card","Kartu",CreditCard]].map(([v,label,Icon]:any) => <Button key={v} variant={paymentMethod===v ? "secondary" : "outline"} onClick={() => setPaymentMethod(v)} disabled={!quote}><Icon size={16}/>{label}</Button>)}</div>
         {paymentMethod !== "cash" && <label className={styles.field}>No. referensi {paymentMethod === "qris" ? "QRIS" : "kartu"} (opsional)<Input value={paymentReference} onChange={e=>setPaymentReference(e.target.value)} placeholder="Contoh: TRX-2026-000123" maxLength={120}/></label>}
         <label className={styles.field}>Gate Out<Select value={exitDeviceCode} onValueChange={setExitDeviceCode}><SelectTrigger><SelectValue placeholder="Pilih Gate Out"/></SelectTrigger><SelectContent><SelectItem value="__manual">Manual — tanpa barrier</SelectItem>{gates.map(d => <SelectItem key={d.deviceCode} value={d.deviceCode}>{d.deviceCode} · {d.name}</SelectItem>)}</SelectContent></Select></label>
-        {selectedGate && <div className={styles.cameraBox}><div className={styles.cameraHead}><span>KAMERA GATE OUT</span><small>{selectedGate.deviceCode}</small></div>{selectedGate.cameraSnapshotUrl ? <img src={selectedGate.cameraSnapshotUrl} alt="Snapshot kamera Gate Out"/> : selectedGate.cameraUrl && /^https?:\/\//i.test(selectedGate.cameraUrl) ? <div className={styles.cameraLink}>Live camera terkonfigurasi. <a href={selectedGate.cameraUrl} target="_blank" rel="noreferrer">Buka feed</a></div> : <div className={styles.cameraEmpty}>Belum ada URL kamera Gate Out.</div>}</div>}
         <label className={styles.field}>Printer struk<Select value={receiptPrinterDeviceCode} onValueChange={setReceiptPrinterDeviceCode}><SelectTrigger><SelectValue placeholder="Pilih printer struk"/></SelectTrigger><SelectContent><SelectItem value="__none">Tidak mencetak otomatis</SelectItem>{printers.map(d => <SelectItem key={d.deviceCode} value={d.deviceCode}>{d.deviceCode} · {d.name}</SelectItem>)}</SelectContent></Select></label>
         <Button size="lg" onClick={pay} disabled={busy || !quote || !shift} className={styles.pay}><CheckCircle2 size={18}/> {busy ? "Memproses…" : "Terima pembayaran & buka Gate"}</Button>
       </section>

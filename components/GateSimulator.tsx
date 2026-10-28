@@ -19,7 +19,7 @@ export function GateSimulator({
 }: GateSimulatorProps = {}) {
   const [deviceCode,setDeviceCode]=useState(defaultDeviceCode);
   const [deviceSecret,setDeviceSecret]=useState(defaultDeviceSecret);
-  const [vehicleType,setVehicleType]=useState<"Mobil"|"Motor">("Mobil");
+  const [vehicleType,setVehicleType]=useState<"Mobil"|"Motor"|"Bus/Truk">("Mobil");
   const [running,setRunning]=useState(false);
   const [vehiclePresent,setVehiclePresent]=useState(false);
   const [logs,setLogs]=useState<Log[]>([]);
@@ -145,7 +145,7 @@ export function GateSimulator({
       <div className={styles.panel}>
         <h3>2 · Skenario kendaraan</h3>
         <div className={styles.state}><span>Sensor kendaraan</span><strong>{vehiclePresent?"TERDETEKSI":"KOSONG"}</strong></div>
-        <label>Jenis kendaraan<select value={vehicleType} onChange={e=>setVehicleType(e.target.value as "Mobil"|"Motor")}><option>Mobil</option><option>Motor</option></select></label>
+        <label>Jenis kendaraan<select value={vehicleType} onChange={e=>setVehicleType(e.target.value as "Mobil"|"Motor"|"Bus/Truk")}><option>Mobil</option><option>Motor</option><option>Bus/Truk</option></select></label>
         <div className={styles.actions}><Button variant="outline" onClick={triggerVehicle} disabled={!running||vehiclePresent}>Simulasikan kendaraan</Button><Button onClick={issueTicket} disabled={!running||!vehiclePresent||busy}>{busy?"Memproses…":"AMBIL TIKET"}</Button></div>
         {ticket&&<div className={styles.ticket}><span>Tiket terakhir</span><strong>{ticket.ticketNo}</strong><small>Slot {ticket.slot}</small><small>Event {lastEventId}</small><Button variant="outline" onClick={retrySameEvent} disabled={!running||!lastEventId||busy}>Ulangi event terakhir</Button></div>}
       </div>

@@ -83,7 +83,20 @@ const methodLabel: Record<string, string> = {
   override: "Override",
 };
 
-export function GateOutLive({ deviceCode }: { deviceCode: string }) {
+type GateOption = {
+  deviceCode: string;
+  name: string;
+};
+
+export function GateOutLive({
+  deviceCode,
+  gates = [],
+  onDeviceChange,
+}: {
+  deviceCode: string;
+  gates?: GateOption[];
+  onDeviceChange?: (deviceCode: string) => void;
+}) {
   const [data, setData] = useState<LiveData | null>(null);
   const [error, setError] = useState("");
   const [tick, setTick] = useState(Date.now());
@@ -153,12 +166,12 @@ export function GateOutLive({ deviceCode }: { deviceCode: string }) {
     return rows.slice(0, 3);
   }, [data]);
 
-  if (!deviceCode) {
+  if (!deviceCode || !gates.length) {
     return (
       <section className={styles.panel}>
         <div className={styles.empty}>
           <Camera size={20} />
-          <span>Pilih gate keluar untuk menampilkan live view.</span>
+          <span>Belum ada gate keluar aktif untuk ditampilkan.</span>
         </div>
       </section>
     );
@@ -177,6 +190,23 @@ export function GateOutLive({ deviceCode }: { deviceCode: string }) {
               <span>Kamera {data.device.capabilities.cameraDeviceCode}</span>
             )}
           </span>
+          {onDeviceChange && gates.length > 0 && (
+            <label className={styles.gatePicker}>
+              <span>Pilih gate</span>
+              <select
+                className={styles.gateSelect}
+                value={deviceCode}
+                onChange={(event) => onDeviceChange(event.target.value)}
+                aria-label="Pilih gate keluar"
+              >
+                {gates.map((gate) => (
+                  <option key={gate.deviceCode} value={gate.deviceCode}>
+                    {gate.deviceCode} · {gate.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
         <div className={styles.statusBlock}>
           <Badge variant={data?.online ? "success" : "outline"}>

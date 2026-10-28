@@ -38,7 +38,13 @@ test("seed data, site settings and parking quotes work", async () => {
     .get() as { count: number };
   assert.equal(Number(users.count), 5);
   assert.equal(Number(devices.count), 8);
-  assert.equal(Number(slots.count), 80);
+  assert.equal(Number(slots.count), 90);
+  const heavySlots = db
+    .prepare(
+      "SELECT COUNT(*) AS count FROM parking_slots WHERE vehicle_type = 'Bus/Truk'",
+    )
+    .get() as { count: number };
+  assert.equal(Number(heavySlots.count), 10);
   assert.equal(getSiteSettings(db).timezoneOffsetHours, 8);
   assert.equal(getSiteSettings(db).timezoneLabel, "WITA");
 
@@ -68,4 +74,17 @@ test("seed data, site settings and parking quotes work", async () => {
   assert.equal(memberQuote.baseFee, 8000);
   assert.equal(memberQuote.fee, 0);
   assert.equal(memberQuote.membership?.planName, "Bulanan");
+
+  db.prepare(
+    `INSERT INTO tickets
+      (ticket_no, qr_token, plate_number, vehicle_type, entry_at, status, base_fee, fee, created_at)
+     VALUES (?, ?, ?, 'Bus/Truk', ?, 'parked', 0, 0, ?)`,
+  ).run("TEST-QUOTE-3", "PKR1.TESTQUOTE3", "DD 3333 BB", entry, entry);
+
+  const heavy = findTicket(db, "TEST-QUOTE-3");
+  assert.ok(heavy);
+  const heavyQuote = buildQuote(db, heavy!);
+  assert.equal(heavyQuote.vehicleType, "Bus/Truk");
+  assert.equal(heavyQuote.baseFee, 17000);
+  assert.equal(heavyQuote.fee, 17000);
 });

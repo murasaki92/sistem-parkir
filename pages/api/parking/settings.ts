@@ -19,6 +19,8 @@ const TARIFF_KEYS: Array<keyof Tariffs> = [
   "carNextHour",
   "motorFirstHour",
   "motorNextHour",
+  "busFirstHour",
+  "busNextHour",
   "graceMinutes",
   "lostTicketFee",
 ];

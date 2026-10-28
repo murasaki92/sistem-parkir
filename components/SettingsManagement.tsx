@@ -11,6 +11,8 @@ type TariffKey =
   | "carNextHour"
   | "motorFirstHour"
   | "motorNextHour"
+  | "busFirstHour"
+  | "busNextHour"
   | "graceMinutes"
   | "lostTicketFee";
 
@@ -40,6 +42,16 @@ const tariffFields: Array<{
     hint: "Ditambahkan untuk setiap jam setelah jam pertama.",
   },
   {
+    key: "busFirstHour",
+    label: "Bus/Truk — jam pertama",
+    hint: "Tarif minimum satu jam pertama.",
+  },
+  {
+    key: "busNextHour",
+    label: "Bus/Truk — jam berikutnya",
+    hint: "Ditambahkan untuk setiap jam setelah jam pertama.",
+  },
+  {
     key: "graceMinutes",
     label: "Grace period (menit)",
     hint: "Waktu toleransi sebelum pembulatan jam berikutnya.",
@@ -64,6 +76,8 @@ export function SettingsManagement() {
     carNextHour: "3000",
     motorFirstHour: "2000",
     motorNextHour: "1500",
+    busFirstHour: "10000",
+    busNextHour: "7000",
     graceMinutes: "10",
     lostTicketFee: "50000",
   });
@@ -136,6 +150,8 @@ export function SettingsManagement() {
     Number(tariffs.carFirstHour || 0) + Number(tariffs.carNextHour || 0);
   const motorTwoHours =
     Number(tariffs.motorFirstHour || 0) + Number(tariffs.motorNextHour || 0);
+  const busTwoHours =
+    Number(tariffs.busFirstHour || 0) + Number(tariffs.busNextHour || 0);
 
   return (
     <section className={styles.wrap}>
@@ -189,6 +205,9 @@ export function SettingsManagement() {
           </span>
           <span>
             Contoh 2 jam motor: <strong>{rupiah(motorTwoHours)}</strong>
+          </span>
+          <span>
+            Contoh 2 jam bus/truk: <strong>{rupiah(busTwoHours)}</strong>
           </span>
         </div>
       </section>

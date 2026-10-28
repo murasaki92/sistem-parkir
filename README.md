@@ -12,7 +12,7 @@ aplikasi Next.js lengkap dengan database SQLite lokal.
 ## Fitur
 
 - Login berbasis role: Admin, Supervisor, Kasir, Operator, Viewer.
-- Terminal kasir: cari tiket/QR, hitung tarif, update plat, bayar, cetak struk.
+- Terminal kasir: cari tiket/QR, hitung tarif, update plat, ubah kelas kendaraan, bayar, cetak struk.
 - Live Gate Out di kasir: feed kamera/snapshot, status gate & barrier, kendaraan
   terakhir keluar, command terakhir, dan riwayat keluar.
 - Shift kasir: saldo awal, expected cash, selisih saat tutup shift.
@@ -22,7 +22,7 @@ aplikasi Next.js lengkap dengan database SQLite lokal.
 - Membership: paket, kendaraan, perpanjangan, pembatalan, manfaat otomatis.
 - Laporan: pendapatan, rekonsiliasi, metode bayar, aktivitas per jam, CSV.
 - Override supervisor: bebas biaya, ubah tarif, tiket hilang, buka barrier.
-- Peta slot parkir: 80 slot demo, status terisi/kosong dan tiket aktif.
+- Peta slot parkir: 90 slot demo (40 mobil, 40 motor, 10 bus/truk), status terisi/kosong dan tiket aktif.
 - Pengaturan tarif dan zona waktu dari UI (Admin).
 - Audit log perubahan karyawan, perangkat, membership, tarif, shift, backup.
 - Backup operasional JSON + backup penuh database SQLite.
@@ -116,9 +116,12 @@ Catatan:
 
 ## Tarif dan membership
 
-- Mobil: Rp5.000 jam pertama, Rp3.000 jam berikutnya.
 - Motor: Rp2.000 jam pertama, Rp1.500 jam berikutnya.
+- Mobil: Rp5.000 jam pertama, Rp3.000 jam berikutnya.
+- Bus/Truk: Rp10.000 jam pertama, Rp7.000 jam berikutnya.
 - Grace 10 menit; minimal 1 jam tagihan.
+- Kasir dapat mengubah kelas kendaraan pada tiket aktif dengan tombol
+  **F1 Motor / F2 Mobil / F3 Bus/Truk**; tarif langsung dihitung ulang.
 - Tarif, grace, tiket hilang, dan zona waktu dapat diubah di
   **Admin → Pengaturan**.
 - Membership: gratis, diskon persen, atau tarif flat.

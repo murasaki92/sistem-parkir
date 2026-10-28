@@ -28,7 +28,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (eventId.length < 6 || eventId.length > 160) {
     return res.status(400).json({ error: "eventId tidak valid." });
   }
-  if (!["Mobil", "Motor"].includes(vehicleType)) {
+  if (!["Mobil", "Motor", "Bus/Truk"].includes(vehicleType)) {
     return res.status(400).json({ error: "Jenis kendaraan tidak valid." });
   }
 

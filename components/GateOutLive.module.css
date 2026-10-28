@@ -43,6 +43,31 @@
   font: 600 8px var(--font-family-monospace);
 }
 
+.gatePicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.gatePicker > span {
+  font: 600 8px var(--font-family-monospace);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+
+.gateSelect {
+  height: 30px;
+  max-width: 300px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--foreground);
+  font: 500 10px var(--font-family-base);
+}
+
 .statusBlock {
   display: grid;
   justify-items: end;
@@ -477,7 +502,32 @@
   .header {
     flex-direction: column;
   }
-  .statusBlock {
+  .gatePicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.gatePicker > span {
+  font: 600 8px var(--font-family-monospace);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+
+.gateSelect {
+  height: 30px;
+  max-width: 300px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--foreground);
+  font: 500 10px var(--font-family-base);
+}
+
+.statusBlock {
     justify-items: start;
   }
   .recentGrid {

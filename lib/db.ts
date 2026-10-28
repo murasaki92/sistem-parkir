@@ -22,6 +22,8 @@ export type Tariffs = {
   carNextHour: number;
   motorFirstHour: number;
   motorNextHour: number;
+  busFirstHour: number;
+  busNextHour: number;
   graceMinutes: number;
   lostTicketFee: number;
 };
@@ -31,6 +33,8 @@ export const DEFAULT_TARIFFS: Tariffs = {
   carNextHour: 3000,
   motorFirstHour: 2000,
   motorNextHour: 1500,
+  busFirstHour: 10000,
+  busNextHour: 7000,
   graceMinutes: 10,
   lostTicketFee: 50000,
 };
@@ -312,9 +316,19 @@ export function getDb(): SqliteDatabase {
   }
 
   seed(db);
+  ensureHeavySlots(db);
   cached = db;
   globalRef.__parklineDb = db;
   return db;
+}
+
+function ensureHeavySlots(db: SqliteDatabase) {
+  const insert = db.prepare(
+    "INSERT OR IGNORE INTO parking_slots (code, vehicle_type, zone, occupied) VALUES (?, ?, ?, 0)",
+  );
+  for (let i = 1; i <= 10; i += 1) {
+    insert.run(`T-${String(i).padStart(2, "0")}`, "Bus/Truk", "Zona T");
+  }
 }
 
 export function transaction<T>(db: SqliteDatabase, fn: () => T): T {
@@ -349,6 +363,9 @@ function feeFor(vehicle: string, minutes: number, tariffs: Tariffs): number {
   );
   if (vehicle === "Motor") {
     return tariffs.motorFirstHour + (hours - 1) * tariffs.motorNextHour;
+  }
+  if (vehicle === "Bus/Truk") {
+    return tariffs.busFirstHour + (hours - 1) * tariffs.busNextHour;
   }
   return tariffs.carFirstHour + (hours - 1) * tariffs.carNextHour;
 }

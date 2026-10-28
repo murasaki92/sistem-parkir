@@ -213,11 +213,15 @@ export function buildQuote(
   const first =
     ticket.vehicle_type === "Motor"
       ? tariffs.motorFirstHour
-      : tariffs.carFirstHour;
+      : ticket.vehicle_type === "Bus/Truk"
+        ? tariffs.busFirstHour
+        : tariffs.carFirstHour;
   const next =
     ticket.vehicle_type === "Motor"
       ? tariffs.motorNextHour
-      : tariffs.carNextHour;
+      : ticket.vehicle_type === "Bus/Truk"
+        ? tariffs.busNextHour
+        : tariffs.carNextHour;
   const baseFee = first + (hours - 1) * next;
 
   const member = findActiveMembership(db, ticket.plate_number);

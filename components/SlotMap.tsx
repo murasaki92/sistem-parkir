@@ -67,6 +67,7 @@ export function SlotMap() {
   const typeLabel: Record<string, string> = {
     Mobil: "Zona Mobil",
     Motor: "Zona Motor",
+    "Bus/Truk": "Zona Bus/Truk",
   };
 
   return (
