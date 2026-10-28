@@ -1,0 +1,116 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: rgba(10, 24, 16, 0.45);
+  backdrop-filter: blur(2px);
+  animation: overlayIn var(--animation-duration-fast) ease-out;
+}
+
+.content {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: var(--z-content);
+  width: min(calc(100vw - 32px), 580px);
+  max-height: min(86vh, 760px);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--popup);
+  color: var(--popup-foreground);
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  animation: contentIn var(--animation-duration-normal) ease-out;
+}
+
+.content:focus {
+  outline: none;
+}
+
+.close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.close:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.header {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 16px;
+  padding-right: 26px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 520px) {
+  .content {
+    padding: 18px;
+  }
+  .footer {
+    flex-wrap: wrap;
+  }
+}

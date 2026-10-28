@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import {
   Form,
   FormControl,
@@ -31,7 +31,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { onLogin } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -48,7 +48,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
     try {
       const result = await postLogin(data);
       onLogin(result.user);
-      setTimeout(() => navigate("/"), 200);
+      setTimeout(() => router.replace("/cashier"), 150);
     } catch (err) {
       console.error("Login error:", err);
       setError(
@@ -71,7 +71,7 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
           <FormLabel>Email</FormLabel>
           <FormControl>
             <Input
-              placeholder="your@email.com"
+              placeholder="nama@parkline.id"
               type="email"
               autoComplete="email"
               disabled={isLoading}
@@ -112,10 +112,10 @@ export const PasswordLoginForm: React.FC<PasswordLoginFormProps> = ({
           {isLoading ? (
             <span className={styles.loadingText}>
               <Spinner className={styles.spinner} size="sm" />
-              Logging in...
+              Memproses...
             </span>
           ) : (
-            "Log In"
+            "Masuk"
           )}
         </Button>
       </form>

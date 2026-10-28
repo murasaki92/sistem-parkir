@@ -1,0 +1,57 @@
+.dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  padding: 26px 18px;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--animation-duration-fast) ease,
+    background-color var(--animation-duration-fast) ease;
+}
+
+.dropzone:hover,
+.dragging {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--secondary) 55%, var(--surface));
+}
+
+.dropzone:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.icon {
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+
+.dropzone strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dropzone span {
+  max-width: 420px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.dropzone small {
+  font: 500 9px var(--font-family-monospace);
+  letter-spacing: 0.03em;
+  color: var(--muted-foreground);
+}
+
+.error {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--destructive);
+}

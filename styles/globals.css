@@ -1,0 +1,129 @@
+:root {
+  --background: #f4f7f4;
+  --foreground: #17211b;
+  --card: #ffffff;
+  --card-foreground: #17211b;
+  --surface: #fbfcfa;
+  --surface-foreground: #17211b;
+  --popup: #ffffff;
+  --popup-foreground: #17211b;
+
+  --primary: #145c3f;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f1eb;
+  --secondary-foreground: #145c3f;
+
+  --muted: #edf2ee;
+  --muted-foreground: #68766d;
+  --border: #dce5dd;
+
+  --destructive: #a33a3a;
+  --error: #a33a3a;
+  --error-foreground: #ffffff;
+  --success: #15803d;
+  --warning: #9a6b00;
+
+  --radius-sm: 7px;
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+
+  --font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-heading: "Inter Tight", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-display: "Inter Tight", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-monospace: "JetBrains Mono", "SFMono-Regular", ui-monospace,
+    Menlo, Consolas, "Liberation Mono", monospace;
+
+  --shadow: 0 1px 2px rgba(18, 38, 26, 0.05);
+  --shadow-md: 0 6px 18px rgba(18, 38, 26, 0.08);
+  --shadow-lg: 0 24px 60px rgba(12, 28, 19, 0.2);
+  --shadow-focus: 0 0 0 3px rgba(20, 92, 63, 0.18);
+
+  --animation-duration-fast: 120ms;
+  --animation-duration-normal: 180ms;
+  --animation-duration-slow: 280ms;
+
+  --z-overlay: 40;
+  --z-content: 50;
+
+  --chart-color-1: #145c3f;
+  --chart-color-2: #2f855a;
+  --chart-color-3: #68a678;
+  --chart-color-4: #a3c9ae;
+  --chart-color-5: #d7e8dc;
+  --color-bg: #ffffff;
+  --spinner-color: #145c3f;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-family-base);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    margin-top: 0;
+  }
+
+  ::selection {
+    background: var(--secondary);
+    color: var(--primary);
+  }
+
+  @media print {
+    body {
+      background: #ffffff;
+    }
+    nav,
+    [data-print-hidden] {
+      display: none !important;
+    }
+  }
+}

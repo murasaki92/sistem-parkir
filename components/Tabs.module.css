@@ -36,6 +36,16 @@
     color: var(--foreground);
   }
 
+  .tabsTrigger:focus {
+    outline: none;
+  }
+
+  .tabsTrigger:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, transparent);
+    border-radius: var(--radius-sm);
+  }
+
   .tabsTrigger[data-state="active"] {
     color: var(--primary);
     font-weight: 600;

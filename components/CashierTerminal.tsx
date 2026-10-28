@@ -27,6 +27,7 @@ export function CashierTerminal() {
   const [commandStatus, setCommandStatus] = useState<any[]>([]);
   const [retryingCommand, setRetryingCommand] = useState<string | null>(null);
   const [shift, setShift] = useState<any>(null);
+  const [shiftLoaded, setShiftLoaded] = useState(false);
   const [shiftError, setShiftError] = useState("");
   const [shiftOpenDialog, setShiftOpenDialog] = useState(false);
   const [shiftCloseDialog, setShiftCloseDialog] = useState(false);
@@ -44,6 +45,7 @@ export function CashierTerminal() {
     setShiftError("");
     try { const r=await fetch("/api/parking/cashierShift"); const j=await r.json(); if(!r.ok) throw new Error(j.error||"Gagal memuat shift"); setShift(j.current); }
     catch(e){setShiftError(e instanceof Error?e.message:"Gagal memuat shift kasir");}
+    finally{setShiftLoaded(true);}
   };
 
   const openShift = async () => {
@@ -92,6 +94,7 @@ export function CashierTerminal() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Pembayaran gagal");
       setReceipt(j); setQuote(null); setTicketNo("");
+      await loadShift();
       if (exitDeviceCode !== "__manual" || receiptPrinterDeviceCode !== "__none") {
         const monitorTicket = String(j.ticketNo || "").toUpperCase();
         const loadStatus = async () => { try { const s = await fetch(`/api/parking/commandStatus?ticketNo=${encodeURIComponent(monitorTicket)}`); const d = await s.json(); if (s.ok) setCommandStatus(d.commands || []); } catch {} };
@@ -118,11 +121,11 @@ export function CashierTerminal() {
   return <div className={styles.terminal}>
     <div className={styles.header}>
       <div><div className={styles.kicker}>CASHIER WORKSTATION</div><h2>Terminal kasir</h2><p>Scan atau masukkan nomor tiket untuk menyelesaikan kendaraan keluar.</p></div>
-      <Badge variant={shift ? "success" : "outline"}>{shift ? "SHIFT AKTIF" : "SHIFT BELUM DIBUKA"}</Badge>
+      <Badge variant={shift ? "success" : "outline"}>{shift ? "SHIFT AKTIF" : shiftLoaded ? "SHIFT BELUM DIBUKA" : "MEMUAT SHIFT…"}</Badge>
     </div>
     <section className={styles.shiftBar}>
-      <div className={styles.shiftMain}><WalletCards size={19}/><div><strong>{shift ? "Shift kasir aktif" : "Belum ada shift kasir"}</strong><span>{shift ? `Buka ${new Date(shift.openedAt).toLocaleString("id-ID")} · Kas diharapkan ${rupiah(Number(shift.expectedCash||0))}` : "Buka shift dan masukkan saldo awal sebelum menerima pembayaran."}</span></div></div>
-      <div className={styles.shiftActions}>{shift ? <Button variant="outline" onClick={()=>setShiftCloseDialog(true)}>Tutup shift</Button> : <Button onClick={()=>setShiftOpenDialog(true)}>Buka shift</Button>}</div>
+      <div className={styles.shiftMain}><WalletCards size={19}/><div><strong>{shift ? "Shift kasir aktif" : shiftLoaded ? "Belum ada shift kasir" : "Memuat shift kasir…"}</strong><span>{shift ? `Buka ${new Date(shift.openedAt).toLocaleString("id-ID")} · Kas diharapkan ${rupiah(Number(shift.expectedCash||0))}` : shiftLoaded ? "Buka shift dan masukkan saldo awal sebelum menerima pembayaran." : "Menghubungi server untuk memeriksa shift aktif."}</span></div></div>
+      <div className={styles.shiftActions}>{shift ? <Button variant="outline" onClick={()=>setShiftCloseDialog(true)}>Tutup shift</Button> : <Button onClick={()=>setShiftOpenDialog(true)} disabled={!shiftLoaded}>Buka shift</Button>}</div>
     </section>
     {shiftError && <div className={styles.error}><XCircle size={16}/>{shiftError}</div>}
     <div className={styles.workflow}>

@@ -1,0 +1,141 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  width: min(100% - 40px, 1450px);
+  min-height: 62px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+
+.mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.brand strong {
+  display: block;
+  font: 700 13px var(--font-family-display);
+  letter-spacing: 0.09em;
+}
+
+.brand small {
+  display: block;
+  margin-top: 1px;
+  font: 500 8px var(--font-family-monospace);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.link {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: background-color var(--animation-duration-fast) ease,
+    color var(--animation-duration-fast) ease;
+}
+
+.link:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.active {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  font-weight: 600;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+}
+
+.avatar {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  font: 650 10px var(--font-family-monospace);
+  color: var(--primary);
+}
+
+.identity {
+  display: grid;
+  line-height: 1.2;
+}
+
+.identity strong {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.identity small {
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+
+.session {
+  font: 600 8px var(--font-family-monospace) !important;
+  letter-spacing: 0.05em;
+  padding: 3px 8px !important;
+}
+
+.logoutLabel {
+  margin-left: 2px;
+}
+
+@media (max-width: 860px) {
+  .inner {
+    width: min(100% - 24px, 1450px);
+    gap: 12px;
+  }
+  .identity,
+  .session,
+  .logoutLabel,
+  .brand small {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand strong {
+    display: none;
+  }
+}

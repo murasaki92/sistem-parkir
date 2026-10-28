@@ -8,9 +8,17 @@ type Log = { time:string; level:"info"|"ok"|"warn"|"error"; text:string };
 const now=()=>new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 const makeEventId=()=>crypto.randomUUID();
 
-export function GateSimulator(){
-  const [deviceCode,setDeviceCode]=useState("GATE-IN-001");
-  const [deviceSecret,setDeviceSecret]=useState("");
+type GateSimulatorProps = {
+  defaultDeviceCode?: string;
+  defaultDeviceSecret?: string;
+};
+
+export function GateSimulator({
+  defaultDeviceCode = "GATE-IN-001",
+  defaultDeviceSecret = "",
+}: GateSimulatorProps = {}) {
+  const [deviceCode,setDeviceCode]=useState(defaultDeviceCode);
+  const [deviceSecret,setDeviceSecret]=useState(defaultDeviceSecret);
   const [vehicleType,setVehicleType]=useState<"Mobil"|"Motor">("Mobil");
   const [running,setRunning]=useState(false);
   const [vehiclePresent,setVehiclePresent]=useState(false);
