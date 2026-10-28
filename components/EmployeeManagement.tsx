@@ -62,6 +62,7 @@ export function EmployeeManagement() {
   const [selected, setSelected] = useState<Employee | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [password, setPassword] = useState("");
+  const [search, setSearch] = useState("");
 
   const load = async () => {
     try {
@@ -212,6 +213,11 @@ export function EmployeeManagement() {
   };
 
   const activeCount = employees.filter((e) => e.status === "active").length;
+  const visible = employees.filter((employee) =>
+    `${employee.displayName} ${employee.email} ${employee.role}`
+      .toLowerCase()
+      .includes(search.trim().toLowerCase()),
+  );
 
   return (
     <section className={styles.wrap}>
@@ -239,6 +245,13 @@ export function EmployeeManagement() {
           <i className={styles.live} /> <strong>{activeCount}</strong> aktif
         </span>
         <span className={styles.hint}>Password minimal 8 karakter</span>
+        <Input
+          className={styles.searchInput}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Cari nama, email, role…"
+          aria-label="Cari karyawan"
+        />
       </div>
 
       <div className={styles.tableWrap}>
@@ -253,7 +266,7 @@ export function EmployeeManagement() {
             </tr>
           </thead>
           <tbody>
-            {employees.map((employee) => (
+            {visible.map((employee) => (
               <tr key={employee.id}>
                 <td>
                   <strong>{employee.displayName}</strong>
@@ -307,10 +320,10 @@ export function EmployeeManagement() {
                 </td>
               </tr>
             ))}
-            {!employees.length && (
+            {!visible.length && (
               <tr>
                 <td colSpan={5} className={styles.empty}>
-                  Belum ada karyawan.
+                  {search ? "Tidak ada karyawan yang cocok." : "Belum ada karyawan."}
                 </td>
               </tr>
             )}

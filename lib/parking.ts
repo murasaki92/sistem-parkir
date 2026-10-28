@@ -15,6 +15,7 @@ export type TicketRow = {
   base_fee: number;
   fee: number;
   payment_method: string | null;
+  payment_reference: string | null;
   paid_at: string | null;
   receipt_no: string | null;
   shift_id: number | null;
@@ -138,6 +139,43 @@ export function findActiveMembership(
     benefitValue: Number(row.benefit_value),
     expiresAt: row.expires_at,
   };
+}
+
+export type SiteSettings = {
+  timezoneOffsetHours: number;
+  timezoneLabel: string;
+};
+
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  timezoneOffsetHours: 8,
+  timezoneLabel: "WITA",
+};
+
+export function getSiteSettings(db: DatabaseSync): SiteSettings {
+  const row = db
+    .prepare("SELECT value FROM settings WHERE key = 'site'")
+    .get() as { value: string } | undefined;
+  if (!row) return DEFAULT_SITE_SETTINGS;
+  try {
+    const parsed = JSON.parse(row.value) as Partial<SiteSettings>;
+    const offset = Number(parsed.timezoneOffsetHours);
+    return {
+      timezoneOffsetHours:
+        Number.isFinite(offset) && offset >= -12 && offset <= 14
+          ? offset
+          : DEFAULT_SITE_SETTINGS.timezoneOffsetHours,
+      timezoneLabel:
+        typeof parsed.timezoneLabel === "string" && parsed.timezoneLabel
+          ? parsed.timezoneLabel
+          : DEFAULT_SITE_SETTINGS.timezoneLabel,
+    };
+  } catch {
+    return DEFAULT_SITE_SETTINGS;
+  }
+}
+
+export function timezoneModifier(offsetHours: number): string {
+  return `${offsetHours >= 0 ? "+" : ""}${offsetHours} hours`;
 }
 
 export type TicketQuote = {

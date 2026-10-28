@@ -11,7 +11,10 @@
     "build": "next build",
     "start": "next start",
     "db:reset": "node -e \"const fs=require('fs');for(const f of ['data/parkline.db','data/parkline.db-wal','data/parkline.db-shm']){try{fs.unlinkSync(f)}catch{}}console.log('Database parkir direset.')\"",
-    "smoke": "node scripts/smoke.js"
+    "smoke": "node scripts/smoke.js",
+    "backup:db": "node scripts/backup-db.js",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.1",
@@ -40,6 +43,7 @@
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

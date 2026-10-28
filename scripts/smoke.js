@@ -180,6 +180,7 @@ async function main() {
     body: {
       ticketNo,
       paymentMethod: "cash",
+      paymentReference: "SMOKE-REF-001",
       exitDeviceCode: GATE_OUT_CODE,
       receiptPrinterDeviceCode: "PRINTER-OUT-001",
     },
@@ -187,7 +188,8 @@ async function main() {
   check(
     pay.status === 200 &&
       Boolean(pay.body?.receiptNo) &&
-      Number(pay.body?.fee) === 7500,
+      Number(pay.body?.fee) === 7500 &&
+      pay.body?.paymentReference === "SMOKE-REF-001",
     `pembayaran berhasil (${pay.body?.receiptNo})`,
   );
 
@@ -260,12 +262,34 @@ async function main() {
     "daftar membership dapat dibaca",
   );
 
+  const settings = await request("/api/parking/settings", { cookie });
+  check(
+    settings.status === 200 && Boolean(settings.body?.tariffs),
+    "pengaturan tarif dapat dibaca",
+  );
+
+  const slots = await request("/api/parking/slots", { cookie });
+  check(
+    slots.status === 200 &&
+      Array.isArray(slots.body?.slots) &&
+      slots.body.slots.length >= 80,
+    "peta slot dapat dibaca",
+  );
+
   const backup = await request("/api/parking/backup", {
     method: "POST",
     cookie,
     body: { action: "create", label: "Smoke test backup" },
   });
   check(backup.status === 201 && Boolean(backup.body?.backup?.id), "backup dibuat");
+
+  const audit = await request("/api/parking/auditLogs?limit=20", { cookie });
+  check(
+    audit.status === 200 &&
+      Array.isArray(audit.body) &&
+      audit.body.some((entry) => entry.action === "backup.create"),
+    "audit log mencatat backup",
+  );
   const backupId = backup.body?.backup?.id;
   if (backupId) {
     const download = await request(

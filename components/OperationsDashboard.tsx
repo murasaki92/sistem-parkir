@@ -74,15 +74,10 @@ export function OperationsDashboard() {
     if (!silent) setLoading(true);
     setError("");
     try {
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
-        2,
-        "0",
-      )}-${String(now.getDate()).padStart(2, "0")}`;
       const [ticketsRes, devicesRes, reportRes] = await Promise.all([
         fetch("/api/parking/activeTickets"),
         fetch("/api/parking/devices"),
-        fetch(`/api/parking/advancedReport?from=${today}&to=${today}`),
+        fetch("/api/parking/advancedReport"),
       ]);
       const [ticketsBody, devicesBody, reportBody] = await Promise.all([
         ticketsRes.json(),

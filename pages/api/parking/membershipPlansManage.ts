@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb, nowIso } from "../../../lib/db";
 import { asInt, asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { mapPlan, type PlanRow } from "./membershipPlans";
+import { logAudit } from "../../../lib/audit";
 
 const BENEFIT_TYPES = ["free", "discount_percent", "flat_rate"];
 
@@ -60,6 +61,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const row = db
         .prepare("SELECT * FROM membership_plans WHERE id = ?")
         .get(Number(result.lastInsertRowid)) as PlanRow;
+      logAudit(db, req, user, "plan.create", "membership_plan", row.id, {
+        name,
+        durationDays,
+        price,
+        benefitType,
+      });
       return res.status(201).json(mapPlan(row));
     }
 
@@ -86,6 +93,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const row = db
       .prepare("SELECT * FROM membership_plans WHERE id = ?")
       .get(id) as PlanRow;
+    logAudit(db, req, user, "plan.update", "membership_plan", id, {
+      name,
+      durationDays,
+      price,
+      benefitType,
+    });
     return res.status(200).json(mapPlan(row));
   }
 
@@ -101,6 +114,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       .prepare("SELECT * FROM membership_plans WHERE id = ?")
       .get(id) as PlanRow | undefined;
     if (!row) return fail(res, 404, "Paket membership tidak ditemukan.");
+    logAudit(db, req, user, "plan.toggle", "membership_plan", id, {
+      active: Boolean(active),
+    });
     return res.status(200).json(mapPlan(row));
   }
 

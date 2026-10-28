@@ -23,6 +23,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const db = getDb();
   const ticketNo = asString(req.body?.ticketNo);
   const paymentMethod = asString(req.body?.paymentMethod, "cash").toLowerCase();
+  const paymentReference = asString(req.body?.paymentReference).slice(0, 120);
   const exitDeviceCode = asString(req.body?.exitDeviceCode).toUpperCase();
   const receiptPrinterDeviceCode = asString(
     req.body?.receiptPrinterDeviceCode,
@@ -83,7 +84,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       `UPDATE tickets
           SET status = 'paid', exit_at = ?, fee = ?, base_fee = ?,
-              payment_method = ?, paid_at = ?, receipt_no = ?, shift_id = ?,
+              payment_method = ?, payment_reference = ?, paid_at = ?, receipt_no = ?, shift_id = ?,
               exit_device_code = ?, membership_id = ?
         WHERE id = ?`,
     ).run(
@@ -91,6 +92,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       quote.fee,
       quote.baseFee,
       paymentMethod,
+      paymentReference || null,
       paidAt,
       receiptNo,
       shift.id,
@@ -100,8 +102,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     );
 
     db.prepare(
-      "INSERT INTO payments (ticket_id, amount, method, shift_id, created_at) VALUES (?, ?, ?, ?, ?)",
-    ).run(ticket.id, quote.fee, paymentMethod, shift.id, paidAt);
+      "INSERT INTO payments (ticket_id, amount, method, reference, shift_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+    ).run(
+      ticket.id,
+      quote.fee,
+      paymentMethod,
+      paymentReference || null,
+      shift.id,
+      paidAt,
+    );
 
     releaseSlot(db, ticket.slot_id);
 
@@ -201,6 +210,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     fee: quote.fee,
     baseFee: quote.baseFee,
     paymentMethod,
+    paymentReference: paymentReference || null,
     paidAt,
     membership: quote.membership,
     minutes: quote.minutes,

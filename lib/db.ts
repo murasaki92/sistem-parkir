@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS tickets (
   base_fee INTEGER NOT NULL DEFAULT 0,
   fee INTEGER NOT NULL DEFAULT 0,
   payment_method TEXT,
+  payment_reference TEXT,
   paid_at TEXT,
   receipt_no TEXT,
   shift_id INTEGER,
@@ -162,6 +163,7 @@ CREATE TABLE IF NOT EXISTS payments (
   ticket_id INTEGER NOT NULL,
   amount INTEGER NOT NULL DEFAULT 0,
   method TEXT NOT NULL,
+  reference TEXT,
   shift_id INTEGER,
   created_at TEXT NOT NULL
 );
@@ -213,6 +215,18 @@ CREATE TABLE IF NOT EXISTS entry_events (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  actor_id INTEGER,
+  actor_name TEXT NOT NULL,
+  action TEXT NOT NULL,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT,
+  details TEXT,
+  ip TEXT,
+  created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS backups (
   id TEXT PRIMARY KEY,
   backup_type TEXT NOT NULL,
@@ -235,6 +249,7 @@ CREATE INDEX IF NOT EXISTS idx_commands_device ON device_commands(device_code, s
 CREATE INDEX IF NOT EXISTS idx_commands_ticket ON device_commands(ticket_no);
 CREATE INDEX IF NOT EXISTS idx_members_expires ON members(expires_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);
 `;
 
 let cached: SqliteDatabase | null = null;
@@ -272,6 +287,19 @@ export function getDb(): SqliteDatabase {
     db.exec(
       "ALTER TABLE tickets ADD COLUMN fee_override INTEGER NOT NULL DEFAULT 0",
     );
+  }
+
+  const ticketExtraColumns = db
+    .prepare("PRAGMA table_info(tickets)")
+    .all() as Array<{ name: string }>;
+  if (!ticketExtraColumns.some((column) => column.name === "payment_reference")) {
+    db.exec("ALTER TABLE tickets ADD COLUMN payment_reference TEXT");
+  }
+  const paymentColumns = db
+    .prepare("PRAGMA table_info(payments)")
+    .all() as Array<{ name: string }>;
+  if (!paymentColumns.some((column) => column.name === "reference")) {
+    db.exec("ALTER TABLE payments ADD COLUMN reference TEXT");
   }
 
   const userColumns = db
@@ -333,49 +361,53 @@ function seed(db: SqliteDatabase) {
 
   const now = new Date();
   const iso = now.toISOString();
+  const demoSeed = process.env.PARKLINE_SEED_DEMO !== "false";
+  const adminPassword = process.env.PARKLINE_ADMIN_PASSWORD || "admin123";
   const insertUser = db.prepare(
     "INSERT INTO users (email, password_hash, display_name, role, avatar_url, created_at) VALUES (?, ?, ?, ?, ?, ?)",
   );
   insertUser.run(
     "admin@parkline.id",
-    hashPassword("admin123"),
+    hashPassword(adminPassword),
     "Admin Parkline",
     "admin",
     null,
     iso,
   );
-  insertUser.run(
-    "supervisor@parkline.id",
-    hashPassword("supervisor123"),
-    "Supervisor Shift",
-    "supervisor",
-    null,
-    iso,
-  );
-  insertUser.run(
-    "kasir@parkline.id",
-    hashPassword("kasir123"),
-    "Kasir Utama",
-    "cashier",
-    null,
-    iso,
-  );
-  insertUser.run(
-    "operator@parkline.id",
-    hashPassword("operator123"),
-    "Operator Gate",
-    "operator",
-    null,
-    iso,
-  );
-  insertUser.run(
-    "viewer@parkline.id",
-    hashPassword("viewer123"),
-    "Viewer Operasional",
-    "viewer",
-    null,
-    iso,
-  );
+  if (demoSeed) {
+    insertUser.run(
+      "supervisor@parkline.id",
+      hashPassword("supervisor123"),
+      "Supervisor Shift",
+      "supervisor",
+      null,
+      iso,
+    );
+    insertUser.run(
+      "kasir@parkline.id",
+      hashPassword("kasir123"),
+      "Kasir Utama",
+      "cashier",
+      null,
+      iso,
+    );
+    insertUser.run(
+      "operator@parkline.id",
+      hashPassword("operator123"),
+      "Operator Gate",
+      "operator",
+      null,
+      iso,
+    );
+    insertUser.run(
+      "viewer@parkline.id",
+      hashPassword("viewer123"),
+      "Viewer Operasional",
+      "viewer",
+      null,
+      iso,
+    );
+  }
 
   const insertSetting = db.prepare(
     "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
@@ -386,9 +418,23 @@ function seed(db: SqliteDatabase) {
     JSON.stringify({
       name: "Parkline",
       timezone: "Asia/Makassar",
+      timezoneOffsetHours: 8,
+      timezoneLabel: "WITA",
       currency: "IDR",
     }),
   );
+
+  const insertSlot = db.prepare(
+    "INSERT INTO parking_slots (code, vehicle_type, zone, occupied) VALUES (?, ?, ?, 0)",
+  );
+  for (let i = 1; i <= 40; i += 1) {
+    insertSlot.run(`M-${String(i).padStart(2, "0")}`, "Mobil", "Zona M");
+    insertSlot.run(`B-${String(i).padStart(2, "0")}`, "Motor", "Zona B");
+  }
+
+  // A production deployment can start with only the admin account, settings
+  // and empty slots by setting PARKLINE_SEED_DEMO=false.
+  if (!demoSeed) return;
 
   const insertDevice = db.prepare(
     `INSERT INTO devices
@@ -587,14 +633,6 @@ function seed(db: SqliteDatabase) {
   db.prepare(
     "INSERT INTO member_vehicles (member_id, plate_number, vehicle_type, active, created_at) VALUES (1, ?, 'Mobil', 1, ?)",
   ).run("DD 1234 AB", iso);
-
-  const insertSlot = db.prepare(
-    "INSERT INTO parking_slots (code, vehicle_type, zone, occupied) VALUES (?, ?, ?, 0)",
-  );
-  for (let i = 1; i <= 40; i += 1) {
-    insertSlot.run(`M-${String(i).padStart(2, "0")}`, "Mobil", "Zona M");
-    insertSlot.run(`B-${String(i).padStart(2, "0")}`, "Motor", "Zona B");
-  }
 
   const insertTicket = db.prepare(
     `INSERT INTO tickets

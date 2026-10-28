@@ -1,0 +1,137 @@
+.wrap {
+  display: grid;
+  gap: 14px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.head h2 {
+  margin: 0;
+  font: 650 18px var(--font-family-display);
+  letter-spacing: -0.02em;
+}
+
+.head p {
+  max-width: 700px;
+  margin: 5px 0 0;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  width: min(360px, 100%);
+}
+
+.tableWrap {
+  overflow: auto;
+  max-height: 620px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table th {
+  padding: 10px 11px;
+  text-align: left;
+  background: var(--surface);
+  font: 600 8px var(--font-family-monospace);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+.table td {
+  padding: 9px 11px;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+  font-size: 10px;
+}
+
+.time {
+  white-space: nowrap;
+  font: 500 9px var(--font-family-monospace);
+  color: var(--muted-foreground);
+}
+
+.table code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--muted);
+  font: 600 8px var(--font-family-monospace);
+  color: var(--foreground);
+}
+
+.entityId {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px;
+  color: var(--muted-foreground);
+}
+
+.details {
+  max-width: 420px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.ip {
+  white-space: nowrap;
+  font: 500 8px var(--font-family-monospace);
+  color: var(--muted-foreground);
+}
+
+.empty {
+  padding: 28px !important;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.error {
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--destructive) 25%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--destructive) 7%, var(--card));
+  color: var(--destructive);
+  font-size: 11px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+
+.footer svg {
+  flex: none;
+  color: var(--primary);
+}
+
+@media (max-width: 720px) {
+  .head {
+    flex-direction: column;
+  }
+  .search {
+    width: 100%;
+  }
+}

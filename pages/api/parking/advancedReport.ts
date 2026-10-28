@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb } from "../../../lib/db";
 import { asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
+import { getSiteSettings, timezoneModifier } from "../../../lib/parking";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -9,8 +10,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const user = requireUser(req, res, ["admin", "supervisor", "operator", "viewer"]);
   if (!user) return;
 
-  // Parkline operates on WITA (UTC+8). Group and filter reports on local days.
-  const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+  const db = getDb();
+  const site = getSiteSettings(db);
+  const tz = timezoneModifier(site.timezoneOffsetHours);
+  const today = new Date(
+    Date.now() + site.timezoneOffsetHours * 3600000,
+  )
+    .toISOString()
+    .slice(0, 10);
   const from = asString(req.query.from, today);
   const to = asString(req.query.to, today);
   if (!DATE_RE.test(from) || !DATE_RE.test(to)) {
@@ -18,13 +25,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
   if (from > to) return fail(res, 400, "Tanggal awal tidak boleh melebihi tanggal akhir.");
 
-  const db = getDb();
-
   const paid = db
     .prepare(
       `SELECT COALESCE(SUM(fee), 0) AS revenue, COUNT(*) AS transactions
          FROM tickets
-        WHERE status = 'paid' AND date(paid_at, '+8 hours') BETWEEN ? AND ?`,
+        WHERE status = 'paid' AND date(paid_at, '${tz}') BETWEEN ? AND ?`,
     )
     .get(from, to) as { revenue: number; transactions: number };
 
@@ -36,21 +41,21 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     .prepare(
       `SELECT COUNT(*) AS count FROM tickets
         WHERE status = 'paid' AND membership_id IS NOT NULL AND fee = 0
-          AND date(paid_at, '+8 hours') BETWEEN ? AND ?`,
+          AND date(paid_at, '${tz}') BETWEEN ? AND ?`,
     )
     .get(from, to) as { count: number };
 
   const overrides = db
     .prepare(
       `SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS amount
-         FROM overrides WHERE date(created_at, '+8 hours') BETWEEN ? AND ?`,
+         FROM overrides WHERE date(created_at, '${tz}') BETWEEN ? AND ?`,
     )
     .get(from, to) as { count: number; amount: number };
 
   const reported = db
     .prepare(
       `SELECT COALESCE(SUM(amount), 0) AS total
-         FROM payments WHERE date(created_at, '+8 hours') BETWEEN ? AND ?`,
+         FROM payments WHERE date(created_at, '${tz}') BETWEEN ? AND ?`,
     )
     .get(from, to) as { total: number };
 
@@ -67,7 +72,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const methodRows = db
     .prepare(
       `SELECT method, COALESCE(SUM(amount), 0) AS total
-         FROM payments WHERE date(created_at, '+8 hours') BETWEEN ? AND ?
+         FROM payments WHERE date(created_at, '${tz}') BETWEEN ? AND ?
         GROUP BY method`,
     )
     .all(from, to) as Array<{ method: string; total: number }>;
@@ -81,8 +86,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const entryRows = db
     .prepare(
-      `SELECT strftime('%H', entry_at, '+8 hours') AS hour, COUNT(*) AS count
-         FROM tickets WHERE date(entry_at, '+8 hours') BETWEEN ? AND ?
+      `SELECT strftime('%H', entry_at, '${tz}') AS hour, COUNT(*) AS count
+         FROM tickets WHERE date(entry_at, '${tz}') BETWEEN ? AND ?
         GROUP BY hour`,
     )
     .all(from, to) as Array<{ hour: string; count: number }>;
@@ -92,8 +97,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const exitRows = db
     .prepare(
-      `SELECT strftime('%H', paid_at, '+8 hours') AS hour, COUNT(*) AS count, COALESCE(SUM(fee), 0) AS revenue
-         FROM tickets WHERE status = 'paid' AND date(paid_at, '+8 hours') BETWEEN ? AND ?
+      `SELECT strftime('%H', paid_at, '${tz}') AS hour, COUNT(*) AS count, COALESCE(SUM(fee), 0) AS revenue
+         FROM tickets WHERE status = 'paid' AND date(paid_at, '${tz}') BETWEEN ? AND ?
         GROUP BY hour`,
     )
     .all(from, to) as Array<{ hour: string; count: number; revenue: number }>;
@@ -118,7 +123,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const vehicleRows = db
     .prepare(
       `SELECT vehicle_type, COUNT(*) AS count
-         FROM tickets WHERE date(entry_at, '+8 hours') BETWEEN ? AND ?
+         FROM tickets WHERE date(entry_at, '${tz}') BETWEEN ? AND ?
         GROUP BY vehicle_type`,
     )
     .all(from, to) as Array<{ vehicle_type: string; count: number }>;

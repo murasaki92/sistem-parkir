@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb, nowIso } from "../../../lib/db";
 import { asInt, asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { expectedCash, mapShift, openShiftForUser } from "../../../lib/parking";
+import { logAudit } from "../../../lib/audit";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (methodNotAllowed(req, res, ["POST"])) return;
@@ -29,5 +30,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   ).run(closedAt, closingCash, expected, difference, notes, shift.id);
 
   const row = db.prepare("SELECT * FROM shifts WHERE id = ?").get(shift.id) as any;
+  logAudit(db, req, user, "shift.close", "shift", shift.id, {
+    closingCash,
+    expectedCash: expected,
+    difference,
+  });
   return res.status(200).json(mapShift(db, row));
 }

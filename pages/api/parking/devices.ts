@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb, nowIso } from "../../../lib/db";
 import { asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { mapDevice, type DeviceRow } from "../../../lib/parking";
+import { logAudit } from "../../../lib/audit";
 
 function getDevice(id: number): DeviceRow | null {
   const row = getDb()
@@ -44,6 +45,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       nowIso(),
       id,
     );
+    logAudit(db, req, user, "device.set_status", "device", id, {
+      deviceCode: existing.device_code,
+      status,
+    });
     return res.status(200).json(mapDevice(getDevice(id)!));
   }
 
@@ -100,7 +105,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         nowIso(),
         nowIso(),
       );
-    return res.status(201).json(mapDevice(getDevice(Number(result.lastInsertRowid))!));
+    const createdId = Number(result.lastInsertRowid);
+    logAudit(db, req, user, "device.create", "device", createdId, {
+      deviceCode,
+      deviceType,
+      status,
+    });
+    return res.status(201).json(mapDevice(getDevice(createdId)!));
   }
 
   const id = Number(body.id);
@@ -142,5 +153,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     id,
   );
 
+  logAudit(db, req, user, "device.update", "device", id, {
+    deviceCode,
+    deviceType,
+    status,
+  });
   return res.status(200).json(mapDevice(getDevice(id)!));
 }

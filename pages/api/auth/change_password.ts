@@ -3,6 +3,7 @@ import { getDb, transaction } from "../../../lib/db";
 import { fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { createSessionToken, sessionCookie } from "../../../lib/auth";
 import { hashPassword, verifyPassword } from "../../../lib/password";
+import { logAudit } from "../../../lib/audit";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (methodNotAllowed(req, res, ["POST"])) return;
@@ -43,6 +44,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return createSessionToken(user.id);
   });
 
+  logAudit(db, req, user, "auth.change_password", "user", user.id, null);
   res.setHeader("Set-Cookie", sessionCookie(token));
   return res.status(200).json({ ok: true, user });
 }

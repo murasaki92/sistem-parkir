@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb, nowIso } from "../../../lib/db";
 import { asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { hashPassword } from "../../../lib/password";
+import { logAudit } from "../../../lib/audit";
 
 const ROLES = ["supervisor", "admin", "cashier", "operator", "viewer"] as const;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -92,6 +93,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       .run(email, hashPassword(password), displayName, role, nowIso());
 
     const row = employeeById(Number(result.lastInsertRowid))!;
+    logAudit(db, req, current, "employee.create", "employee", row.id, {
+      email,
+      role,
+      status: "active",
+    });
     return res.status(201).json({ user: mapEmployee(row, current.id) });
   }
 
@@ -130,6 +136,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       "UPDATE users SET email = ?, display_name = ?, role = ? WHERE id = ?",
     ).run(email, displayName, role, target.id);
+    logAudit(db, req, current, "employee.update", "employee", target.id, {
+      email,
+      role,
+    });
     return res.status(200).json({
       user: mapEmployee(employeeById(target.id)!, current.id),
     });
@@ -158,6 +168,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (status === "inactive") {
       db.prepare("DELETE FROM sessions WHERE user_id = ?").run(target.id);
     }
+    logAudit(db, req, current, "employee.set_status", "employee", target.id, {
+      status,
+    });
     return res.status(200).json({
       user: mapEmployee(employeeById(target.id)!, current.id),
     });
@@ -173,6 +186,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       target.id,
     );
     db.prepare("DELETE FROM sessions WHERE user_id = ?").run(target.id);
+    logAudit(db, req, current, "employee.reset_password", "employee", target.id, {
+      signedOut: target.id === current.id,
+    });
     return res.status(200).json({
       ok: true,
       signedOut: target.id === current.id,

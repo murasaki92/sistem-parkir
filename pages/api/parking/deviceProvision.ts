@@ -3,6 +3,7 @@ import { getDb, nowIso } from "../../../lib/db";
 import { fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { hashPassword } from "../../../lib/password";
 import type { DeviceRow } from "../../../lib/parking";
+import { logAudit } from "../../../lib/audit";
 
 const { randomBytes } = process.getBuiltinModule("crypto");
 
@@ -27,6 +28,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     id,
   );
 
+  logAudit(db, req, user, "device.provision", "device", id, {
+    deviceCode: device.device_code,
+  });
   return res.status(200).json({
     deviceCode: device.device_code,
     secret,

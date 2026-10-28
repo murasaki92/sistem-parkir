@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getDb, nowIso, transaction } from "../../../lib/db";
 import { asInt, asString, fail, methodNotAllowed, requireUser } from "../../../lib/api";
 import { listMembers } from "./members";
+import { logAudit } from "../../../lib/audit";
 
 type PlanRow = {
   id: number;
@@ -80,6 +81,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       return memberId;
     });
 
+    logAudit(db, req, user, "member.create", "member", id, {
+      memberCode,
+      planId,
+      plateNumber,
+      vehicleType,
+    });
     return res.status(201).json({
       ok: true,
       memberId: id,
@@ -110,6 +117,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       status,
       memberId,
     );
+    logAudit(db, req, user, "member.update", "member", memberId, { status });
     return res.status(200).json({ ok: true, members: listMembers() });
   }
 
@@ -127,6 +135,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       "INSERT INTO member_vehicles (member_id, plate_number, vehicle_type, active, created_at) VALUES (?, ?, ?, 1, ?)",
     ).run(memberId, plateNumber, vehicleType, nowIso());
+    logAudit(db, req, user, "member.add_vehicle", "member", memberId, {
+      plateNumber,
+      vehicleType,
+    });
     return res.status(201).json({ ok: true, members: listMembers() });
   }
 
@@ -137,6 +149,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       "UPDATE member_vehicles SET active = ? WHERE id = ? AND member_id = ?",
     ).run(active, vehicleId, memberId);
+    logAudit(db, req, user, "member.toggle_vehicle", "member", memberId, {
+      vehicleId,
+      active: Boolean(active),
+    });
     return res.status(200).json({ ok: true, members: listMembers() });
   }
 
@@ -153,6 +169,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       "UPDATE members SET plan_id = ?, expires_at = ?, status = 'active' WHERE id = ?",
     ).run(plan.id, expiresAt, memberId);
+    logAudit(db, req, user, "member.renew", "member", memberId, {
+      planId: plan.id,
+      expiresAt,
+    });
     return res.status(200).json({
       ok: true,
       expiresAt,
@@ -164,6 +184,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     db.prepare(
       "UPDATE members SET status = 'inactive', expires_at = NULL WHERE id = ?",
     ).run(memberId);
+    logAudit(db, req, user, "member.cancel", "member", memberId, null);
     return res.status(200).json({ ok: true, members: listMembers() });
   }
 

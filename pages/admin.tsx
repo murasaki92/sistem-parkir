@@ -3,6 +3,7 @@ import { Activity, CarFront, CircleDollarSign, KeyRound, ParkingSquare } from "l
 import { AdminRoute } from "../components/ProtectedRoute";
 import { AppNav } from "../components/AppNav";
 import { AdvancedReports } from "../components/AdvancedReports";
+import { AuditLog } from "../components/AuditLog";
 import { BackupManagement } from "../components/BackupManagement";
 import { DeviceManagement } from "../components/DeviceManagement";
 import { EmployeeManagement } from "../components/EmployeeManagement";
@@ -10,6 +11,8 @@ import { GateOutAttention } from "../components/GateOutAttention";
 import { GateSimulator } from "../components/GateSimulator";
 import { MembershipManagement } from "../components/MembershipManagement";
 import { ParkingOverride } from "../components/ParkingOverride";
+import { SettingsManagement } from "../components/SettingsManagement";
+import { SlotMap } from "../components/SlotMap";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/Tabs";
@@ -199,6 +202,7 @@ export default function AdminPage() {
         <Tabs defaultValue="ringkasan" className={styles.tabs}>
           <TabsList>
             <TabsTrigger value="ringkasan">Ringkasan</TabsTrigger>
+            <TabsTrigger value="slot">Slot</TabsTrigger>
             <TabsTrigger value="perhatian">Gate Out</TabsTrigger>
             <TabsTrigger value="perangkat">Perangkat</TabsTrigger>
             <TabsTrigger value="membership">Membership</TabsTrigger>
@@ -207,12 +211,19 @@ export default function AdminPage() {
             )}
             <TabsTrigger value="laporan">Laporan</TabsTrigger>
             <TabsTrigger value="override">Override</TabsTrigger>
+            <TabsTrigger value="audit">Audit</TabsTrigger>
             <TabsTrigger value="backup">Backup</TabsTrigger>
+            {user?.role === "admin" && (
+              <TabsTrigger value="pengaturan">Pengaturan</TabsTrigger>
+            )}
             <TabsTrigger value="simulator">Simulator</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ringkasan" className={styles.panelContent}>
             <ActiveTickets />
+          </TabsContent>
+          <TabsContent value="slot" className={styles.panelContent}>
+            <SlotMap />
           </TabsContent>
           <TabsContent value="perhatian" className={styles.panelContent}>
             <GateOutAttention />
@@ -234,9 +245,17 @@ export default function AdminPage() {
           <TabsContent value="override" className={styles.panelContent}>
             <ParkingOverride />
           </TabsContent>
+          <TabsContent value="audit" className={styles.panelContent}>
+            <AuditLog />
+          </TabsContent>
           <TabsContent value="backup" className={styles.panelContent}>
             <BackupManagement />
           </TabsContent>
+          {user?.role === "admin" && (
+            <TabsContent value="pengaturan" className={styles.panelContent}>
+              <SettingsManagement />
+            </TabsContent>
+          )}
           <TabsContent value="simulator" className={styles.panelContent}>
             <GateSimulator defaultDeviceSecret="gate-in-demo-secret" />
           </TabsContent>

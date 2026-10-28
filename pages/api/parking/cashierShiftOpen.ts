@@ -5,6 +5,7 @@ import {
   mapShift,
   openShiftForUser,
 } from "../../../lib/parking";
+import { logAudit } from "../../../lib/audit";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (methodNotAllowed(req, res, ["POST"])) return;
@@ -34,5 +35,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     .prepare("SELECT * FROM shifts WHERE id = ?")
     .get(Number(result.lastInsertRowid)) as any;
 
+  logAudit(db, req, user, "shift.open", "shift", row.id, {
+    openingCash,
+  });
   return res.status(201).json(mapShift(db, row));
 }
