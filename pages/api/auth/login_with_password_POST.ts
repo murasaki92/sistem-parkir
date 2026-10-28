@@ -19,7 +19,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const parsed = bodySchema.safeParse(req.body);
   if (!parsed.success) {
-    return fail(res, 400, parsed.error.errors[0]?.message || "Data tidak valid");
+    return fail(res, 400, parsed.error.issues[0]?.message || "Data tidak valid");
   }
 
   const db = getDb();
