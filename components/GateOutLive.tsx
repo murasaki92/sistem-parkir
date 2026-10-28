@@ -92,10 +92,12 @@ export function GateOutLive({
   deviceCode,
   gates = [],
   onDeviceChange,
+  compact = false,
 }: {
   deviceCode: string;
   gates?: GateOption[];
   onDeviceChange?: (deviceCode: string) => void;
+  compact?: boolean;
 }) {
   const [data, setData] = useState<LiveData | null>(null);
   const [error, setError] = useState("");
@@ -168,7 +170,7 @@ export function GateOutLive({
 
   if (!deviceCode || !gates.length) {
     return (
-      <section className={styles.panel}>
+      <section className={`${styles.panel} ${compact ? styles.compact : ""}`}>
         <div className={styles.empty}>
           <Camera size={20} />
           <span>Belum ada gate keluar aktif untuk ditampilkan.</span>
@@ -178,7 +180,7 @@ export function GateOutLive({
   }
 
   return (
-    <section className={styles.panel}>
+    <section className={`${styles.panel} ${compact ? styles.compact : ""}`}>
       <div className={styles.header}>
         <div>
           <div className={styles.kicker}>LIVE GATE OUT</div>
@@ -254,9 +256,7 @@ export function GateOutLive({
                   >
                     <ExternalLink size={12} /> Buka feed kamera
                   </a>
-                ) : (
-                  <span>Kamera gate keluar belum dikonfigurasi</span>
-                )}
+                ) : null}
               </div>
             </div>
           )}

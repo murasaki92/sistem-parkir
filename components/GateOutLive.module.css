@@ -51,6 +51,7 @@
 }
 
 .gatePicker > span {
+  white-space: nowrap;
   font: 600 8px var(--font-family-monospace);
   letter-spacing: 0.08em;
   color: var(--muted-foreground);
@@ -510,6 +511,7 @@
 }
 
 .gatePicker > span {
+  white-space: nowrap;
   font: 600 8px var(--font-family-monospace);
   letter-spacing: 0.08em;
   color: var(--muted-foreground);
@@ -533,4 +535,74 @@
   .recentGrid {
     grid-template-columns: 1fr;
   }
+}
+
+
+.compact {
+  height: 100%;
+  padding: 10px;
+  gap: 8px;
+}
+
+.compact .header h3 {
+  font-size: 15px;
+}
+
+.compact .grid {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.compact .camera {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  max-height: none;
+}
+
+.compact .camera > img {
+  min-height: 0;
+  max-height: none;
+}
+
+.compact .gateVisual {
+  min-height: 0;
+  max-height: none;
+  height: 100%;
+}
+
+.compact .recent,
+.compact .footer {
+  display: none;
+}
+
+.compact .visualFooter {
+  bottom: 26px;
+}
+
+.compact .lastExit {
+  padding: 8px 9px;
+}
+
+.compact .lastExit strong {
+  font-size: 16px;
+}
+
+.compact .lastExitBottom em {
+  font-size: 13px;
+}
+
+.compact .statsRow > div {
+  padding: 6px 7px;
+}
+
+.compact .commands {
+  padding: 7px 8px;
+}
+
+.compact .commandRow {
+  font-size: 8px;
+}
+
+.compact .side {
+  gap: 6px;
 }
