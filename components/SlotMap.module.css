@@ -1,0 +1,161 @@
+.wrap {
+  display: grid;
+  gap: 14px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.head h2 {
+  margin: 0;
+  font: 650 18px var(--font-family-display);
+  letter-spacing: -0.02em;
+}
+
+.head p {
+  max-width: 680px;
+  margin: 5px 0 0;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+
+.updated {
+  font: 500 9px var(--font-family-monospace);
+  color: var(--muted-foreground);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stat {
+  min-width: 100px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.stat span {
+  display: block;
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+
+.stat strong {
+  display: block;
+  margin-top: 2px;
+  font: 650 17px var(--font-family-display);
+}
+
+.zone {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.zoneHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.zoneHead h3 {
+  margin: 0;
+  font: 650 14px var(--font-family-display);
+}
+
+.zoneHead p {
+  margin: 3px 0 0;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 7px;
+}
+
+.slot {
+  display: grid;
+  gap: 3px;
+  min-height: 68px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.slotTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted-foreground);
+}
+
+.slotTop code {
+  font: 600 9px var(--font-family-monospace);
+}
+
+.slot strong {
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot small {
+  overflow: hidden;
+  font: 500 8px var(--font-family-monospace);
+  color: var(--muted-foreground);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.free {
+  align-self: end;
+  font-size: 9px;
+  color: var(--success);
+}
+
+.occupied {
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  background: var(--secondary);
+}
+
+.occupied .slotTop {
+  color: var(--secondary-foreground);
+}
+
+.error {
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--destructive) 25%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--destructive) 7%, var(--card));
+  color: var(--destructive);
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  .head {
+    flex-direction: column;
+  }
+}

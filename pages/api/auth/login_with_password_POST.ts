@@ -1,0 +1,71 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { z } from "zod";
+import { getDb } from "../../../lib/db";
+import {
+  createSessionToken,
+  sessionCookie,
+  toPublicUser,
+} from "../../../lib/auth";
+import { fail, methodNotAllowed } from "../../../lib/api";
+import { verifyPassword } from "../../../lib/password";
+import {
+  checkLoginAllowed,
+  loginAttemptKey,
+  recordLoginFailure,
+  recordLoginSuccess,
+} from "../../../lib/rate-limit";
+
+const bodySchema = z.object({
+  email: z.string().email("Format email tidak valid"),
+  password: z.string().min(1, "Password wajib diisi"),
+});
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (methodNotAllowed(req, res, ["POST"])) return;
+
+  const parsed = bodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    return fail(res, 400, parsed.error.issues[0]?.message || "Data tidak valid");
+  }
+
+  const db = getDb();
+  const attemptKey = loginAttemptKey(req, parsed.data.email);
+  const limit = checkLoginAllowed(db, attemptKey);
+  if (!limit.allowed) {
+    res.setHeader("Retry-After", String(limit.retryAfterSeconds || 900));
+    return fail(
+      res,
+      429,
+      `Terlalu banyak percobaan login. Coba lagi dalam ${Math.ceil(
+        (limit.retryAfterSeconds || 900) / 60,
+      )} menit.`,
+    );
+  }
+
+  const row = db
+    .prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1")
+    .get(parsed.data.email) as
+    | {
+        id: number;
+        email: string;
+        password_hash: string;
+        display_name: string;
+        avatar_url: string | null;
+        role: "supervisor" | "admin" | "cashier" | "operator" | "viewer";
+        status: string;
+      }
+    | undefined;
+
+  if (!row || !verifyPassword(parsed.data.password, row.password_hash)) {
+    recordLoginFailure(db, attemptKey);
+    return fail(res, 401, "Email atau password salah.");
+  }
+  if (row.status !== "active") {
+    return fail(res, 403, "Akun ini dinonaktifkan. Hubungi Admin.");
+  }
+  recordLoginSuccess(db, attemptKey);
+
+  const token = createSessionToken(Number(row.id));
+  res.setHeader("Set-Cookie", sessionCookie(token));
+  return res.status(200).json({ user: toPublicUser(row) });
+}
