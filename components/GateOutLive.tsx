@@ -231,8 +231,12 @@ export function GateOutLive({ deviceCode }: { deviceCode: string }) {
             </div>
           )}
           <div className={styles.cameraTop}>
-            <span className={styles.liveBadge}>
-              <i /> LIVE
+            <span
+              className={`${styles.liveBadge} ${
+                data?.online ? "" : styles.offlineBadge
+              }`}
+            >
+              <i /> {data?.online ? "LIVE" : "OFFLINE"}
             </span>
             <span>{new Date(tick).toLocaleTimeString("id-ID")}</span>
           </div>

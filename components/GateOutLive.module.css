@@ -142,6 +142,15 @@
   animation: livePulse 1.2s ease-in-out infinite;
 }
 
+.offlineBadge {
+  background: #4b5563;
+}
+
+.offlineBadge i {
+  animation: none;
+  opacity: 0.55;
+}
+
 .gateVisual {
   position: relative;
   display: grid;
