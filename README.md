@@ -45,6 +45,25 @@ npm run db:reset
 
 > Ganti password dan set `PARKLINE_SECRET` sebelum dipakai produksi.
 
+### Menambah karyawan
+
+1. Login sebagai **Admin**.
+2. Buka **Admin → Karyawan → Tambah karyawan**.
+3. Isi nama, email login, role, dan password awal (minimal 8 karakter).
+4. Simpan. Karyawan bisa langsung login dengan email tersebut.
+
+Catatan:
+
+- **Admin** dapat mengelola karyawan, perangkat, membership, laporan, override,
+  dan backup.
+- **Supervisor** memiliki akses operasional tetapi tidak dapat mengelola
+  karyawan.
+- **Kasir** hanya dapat membuka terminal kasir dan shift.
+- Menonaktifkan karyawan langsung mencabut semua sesi login-nya.
+- Reset password juga mencabut sesi login karyawan tersebut.
+- Aplikasi mencegah menonaktifkan atau menurunkan role satu-satunya Admin aktif,
+  serta menonaktifkan akun sendiri.
+
 ### Data demo
 
 - 8 perangkat: `GATE-IN-001`, `GATE-OUT-001`, `KASIR-001`, kamera, printer,

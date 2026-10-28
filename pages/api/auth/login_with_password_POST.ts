@@ -33,11 +33,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         display_name: string;
         avatar_url: string | null;
         role: "supervisor" | "admin" | "cashier" | "operator" | "viewer";
+        status: string;
       }
     | undefined;
 
   if (!row || !verifyPassword(parsed.data.password, row.password_hash)) {
     return fail(res, 401, "Email atau password salah.");
+  }
+  if (row.status !== "active") {
+    return fail(res, 403, "Akun ini dinonaktifkan. Hubungi Admin.");
   }
 
   const token = createSessionToken(Number(row.id));

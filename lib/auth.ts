@@ -99,6 +99,7 @@ type UserRow = {
   display_name: string;
   avatar_url: string | null;
   role: Role;
+  status?: string;
 };
 
 export function toPublicUser(row: UserRow): SessionUser {
@@ -115,7 +116,7 @@ export function getUserById(id: number): SessionUser | null {
   const db = getDb();
   const row = db
     .prepare(
-      "SELECT id, email, display_name, avatar_url, role FROM users WHERE id = ?",
+      "SELECT id, email, display_name, avatar_url, role, status FROM users WHERE id = ? AND status = 'active'",
     )
     .get(id) as UserRow | undefined;
   return row ? toPublicUser(row) : null;

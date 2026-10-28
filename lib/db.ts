@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS users (
   display_name TEXT NOT NULL,
   role TEXT NOT NULL,
   avatar_url TEXT,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active'
 );
 
 CREATE TABLE IF NOT EXISTS devices (
@@ -263,6 +264,15 @@ export function getDb(): SqliteDatabase {
   if (!ticketColumns.some((column) => column.name === "fee_override")) {
     db.exec(
       "ALTER TABLE tickets ADD COLUMN fee_override INTEGER NOT NULL DEFAULT 0",
+    );
+  }
+
+  const userColumns = db
+    .prepare("PRAGMA table_info(users)")
+    .all() as Array<{ name: string }>;
+  if (!userColumns.some((column) => column.name === "status")) {
+    db.exec(
+      "ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active'",
     );
   }
 

@@ -5,6 +5,7 @@ import { AppNav } from "../components/AppNav";
 import { AdvancedReports } from "../components/AdvancedReports";
 import { BackupManagement } from "../components/BackupManagement";
 import { DeviceManagement } from "../components/DeviceManagement";
+import { EmployeeManagement } from "../components/EmployeeManagement";
 import { GateOutAttention } from "../components/GateOutAttention";
 import { GateSimulator } from "../components/GateSimulator";
 import { MembershipManagement } from "../components/MembershipManagement";
@@ -201,6 +202,7 @@ export default function AdminPage() {
             <TabsTrigger value="perhatian">Gate Out</TabsTrigger>
             <TabsTrigger value="perangkat">Perangkat</TabsTrigger>
             <TabsTrigger value="membership">Membership</TabsTrigger>
+            <TabsTrigger value="karyawan">Karyawan</TabsTrigger>
             <TabsTrigger value="laporan">Laporan</TabsTrigger>
             <TabsTrigger value="override">Override</TabsTrigger>
             <TabsTrigger value="backup">Backup</TabsTrigger>
@@ -218,6 +220,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="membership" className={styles.panelContent}>
             <MembershipManagement />
+          </TabsContent>
+          <TabsContent value="karyawan" className={styles.panelContent}>
+            <EmployeeManagement />
           </TabsContent>
           <TabsContent value="laporan" className={styles.panelContent}>
             <AdvancedReports />
