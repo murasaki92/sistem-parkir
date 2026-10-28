@@ -37,17 +37,17 @@ export function CashierTerminal() {
   const [closingNotes, setClosingNotes] = useState("");
   const monitorTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    fetch("/api/parking/devices").then(r => r.json()).then(j => setDevices(Array.isArray(j) ? j : [])).catch(() => setDevices([]));
-    loadShift();
-  }, []);
-
   const loadShift = async () => {
     setShiftError("");
     try { const r=await fetch("/api/parking/cashierShift"); const j=await r.json(); if(!r.ok) throw new Error(j.error||"Gagal memuat shift"); setShift(j.current); }
     catch(e){setShiftError(e instanceof Error?e.message:"Gagal memuat shift kasir");}
     finally{setShiftLoaded(true);}
   };
+
+  useEffect(() => {
+    fetch("/api/parking/devices").then(r => r.json()).then(j => setDevices(Array.isArray(j) ? j : [])).catch(() => setDevices([]));
+    loadShift();
+  }, []);
 
   const openShift = async () => {
     try { setShiftError(""); const amount=Math.floor(Number(openingCash)); const r=await fetch("/api/parking/cashierShiftOpen",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({openingCash:amount})}); const j=await r.json(); if(!r.ok) throw new Error(j.error||"Gagal membuka shift"); setOpeningCash(""); setShift(j); setShiftOpenDialog(false); }

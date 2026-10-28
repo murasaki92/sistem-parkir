@@ -14,7 +14,8 @@
     "smoke": "node scripts/smoke.js",
     "backup:db": "node scripts/backup-db.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.1",
@@ -43,6 +44,8 @@
     "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.3",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }

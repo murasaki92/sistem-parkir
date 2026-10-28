@@ -7,51 +7,58 @@ import { ShieldOff } from "lucide-react";
 import { AuthLoadingState } from "./AuthLoadingState";
 import styles from "./ProtectedRoute.module.css";
 
-const MakeProtectedRoute: (
-  roles: User["role"][],
-) => React.FC<{ children: React.ReactNode }> =
-  (roles) =>
-  ({ children }) => {
-    const { authState } = useAuth();
-    const router = useRouter();
+type ProtectedRouteProps = {
+  roles: User["role"][];
+  children: React.ReactNode;
+};
 
-    useEffect(() => {
-      if (authState.type === "unauthenticated") {
-        router.replace("/login");
-      }
-    }, [authState.type, router]);
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ roles, children }) => {
+  const { authState } = useAuth();
+  const router = useRouter();
 
-    if (authState.type === "loading") {
-      return <AuthLoadingState title="Memeriksa sesi..." />;
-    }
-
+  useEffect(() => {
     if (authState.type === "unauthenticated") {
-      return <AuthLoadingState title="Mengalihkan ke halaman login..." />;
+      router.replace("/login");
     }
+  }, [authState.type, router]);
 
-    if (!roles.includes(authState.user.role)) {
-      return (
-        <AuthErrorPage
-          title="Akses ditolak"
-          message={`Akun Anda (${authState.user.role}) tidak memiliki izin untuk halaman ini.`}
-          icon={<ShieldOff className={styles.accessDeniedIcon} size={64} />}
-        />
-      );
-    }
+  if (authState.type === "loading") {
+    return <AuthLoadingState title="Memeriksa sesi..." />;
+  }
 
-    return <>{children}</>;
-  };
+  if (authState.type === "unauthenticated") {
+    return <AuthLoadingState title="Mengalihkan ke halaman login..." />;
+  }
 
-export const AdminRoute = MakeProtectedRoute(["admin", "supervisor"]);
-export const UserRoute = MakeProtectedRoute([
-  "supervisor",
-  "admin",
-  "cashier",
-  "operator",
-  "viewer",
-]);
-export const CashierRoute = MakeProtectedRoute([
-  "supervisor",
-  "admin",
-  "cashier",
-]);
+  if (!roles.includes(authState.user.role)) {
+    return (
+      <AuthErrorPage
+        title="Akses ditolak"
+        message={`Akun Anda (${authState.user.role}) tidak memiliki izin untuk halaman ini.`}
+        icon={<ShieldOff className={styles.accessDeniedIcon} size={64} />}
+      />
+    );
+  }
+
+  return <>{children}</>;
+};
+
+type RouteProps = { children: React.ReactNode };
+
+export const AdminRoute: React.FC<RouteProps> = ({ children }) => (
+  <ProtectedRoute roles={["admin", "supervisor"]}>{children}</ProtectedRoute>
+);
+
+export const UserRoute: React.FC<RouteProps> = ({ children }) => (
+  <ProtectedRoute
+    roles={["supervisor", "admin", "cashier", "operator", "viewer"]}
+  >
+    {children}
+  </ProtectedRoute>
+);
+
+export const CashierRoute: React.FC<RouteProps> = ({ children }) => (
+  <ProtectedRoute roles={["supervisor", "admin", "cashier"]}>
+    {children}
+  </ProtectedRoute>
+);

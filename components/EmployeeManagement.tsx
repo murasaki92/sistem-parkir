@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { KeyRound, Pencil, Plus, Power, UserCog } from "lucide-react";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
@@ -51,6 +52,7 @@ const emptyForm = {
 
 export function EmployeeManagement() {
   const { authState } = useAuth();
+  const router = useRouter();
   const currentUser = authState.type === "authenticated" ? authState.user : null;
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [error, setError] = useState("");
@@ -169,7 +171,7 @@ export function EmployeeManagement() {
       setDialog(null);
       if (result.signedOut) {
         setMessage("Password Anda diubah. Silakan login ulang.");
-        window.location.href = "/login";
+        router.replace("/login");
         return;
       }
       setMessage(`Password ${selected.displayName} berhasil direset.`);

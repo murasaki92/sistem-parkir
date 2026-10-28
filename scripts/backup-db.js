@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 /**
  * Full SQLite backup. Creates a consistent copy with VACUUM INTO and keeps the
  * newest 14 files. This is the disaster-recovery counterpart to the operational
