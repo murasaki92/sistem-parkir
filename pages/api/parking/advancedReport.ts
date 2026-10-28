@@ -6,7 +6,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (methodNotAllowed(req, res, ["GET"])) return;
-  const user = requireUser(req, res, ["admin", "supervisor"]);
+  const user = requireUser(req, res, ["admin", "supervisor", "operator", "viewer"]);
   if (!user) return;
 
   // Parkline operates on WITA (UTC+8). Group and filter reports on local days.

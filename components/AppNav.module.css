@@ -139,3 +139,36 @@
     display: none;
   }
 }
+
+.passwordForm {
+  display: grid;
+  gap: 11px;
+}
+
+.passwordForm label {
+  display: grid;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.formError,
+.formSuccess {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.formError {
+  border: 1px solid color-mix(in srgb, var(--destructive) 25%, var(--border));
+  background: color-mix(in srgb, var(--destructive) 7%, var(--card));
+  color: var(--destructive);
+}
+
+.formSuccess {
+  border: 1px solid color-mix(in srgb, var(--success) 25%, var(--border));
+  background: color-mix(in srgb, var(--success) 7%, var(--card));
+  color: var(--success);
+}

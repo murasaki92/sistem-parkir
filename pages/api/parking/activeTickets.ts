@@ -5,7 +5,7 @@ import { buildQuote, type TicketRow } from "../../../lib/parking";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (methodNotAllowed(req, res, ["GET"])) return;
-  const user = requireUser(req, res, ["admin", "supervisor", "cashier"]);
+  const user = requireUser(req, res, ["admin", "supervisor", "cashier", "operator", "viewer"]);
   if (!user) return;
 
   const db = getDb();

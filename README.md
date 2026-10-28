@@ -42,6 +42,7 @@ npm run db:reset
 | Supervisor | `supervisor@parkline.id` | `supervisor123` |
 | Kasir | `kasir@parkline.id` | `kasir123` |
 | Operator | `operator@parkline.id` | `operator123` |
+| Viewer | `viewer@parkline.id` | `viewer123` |
 
 > Ganti password dan set `PARKLINE_SECRET` sebelum dipakai produksi.
 

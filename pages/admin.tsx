@@ -202,7 +202,9 @@ export default function AdminPage() {
             <TabsTrigger value="perhatian">Gate Out</TabsTrigger>
             <TabsTrigger value="perangkat">Perangkat</TabsTrigger>
             <TabsTrigger value="membership">Membership</TabsTrigger>
-            <TabsTrigger value="karyawan">Karyawan</TabsTrigger>
+            {user?.role === "admin" && (
+              <TabsTrigger value="karyawan">Karyawan</TabsTrigger>
+            )}
             <TabsTrigger value="laporan">Laporan</TabsTrigger>
             <TabsTrigger value="override">Override</TabsTrigger>
             <TabsTrigger value="backup">Backup</TabsTrigger>
@@ -221,9 +223,11 @@ export default function AdminPage() {
           <TabsContent value="membership" className={styles.panelContent}>
             <MembershipManagement />
           </TabsContent>
-          <TabsContent value="karyawan" className={styles.panelContent}>
-            <EmployeeManagement />
-          </TabsContent>
+          {user?.role === "admin" && (
+            <TabsContent value="karyawan" className={styles.panelContent}>
+              <EmployeeManagement />
+            </TabsContent>
+          )}
           <TabsContent value="laporan" className={styles.panelContent}>
             <AdvancedReports />
           </TabsContent>

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { ParkingSquare, ShieldCheck } from "lucide-react";
 import { PasswordLoginForm } from "../components/PasswordLoginForm";
 import { useAuth } from "../helpers/useAuth";
+import { homePathForRole } from "../helpers/home";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (authState.type === "authenticated") {
-      router.replace("/cashier");
+      router.replace(homePathForRole(authState.user.role));
     }
   }, [authState.type, router]);
 

@@ -8,6 +8,12 @@ import {
 } from "../../../lib/auth";
 import { fail, methodNotAllowed } from "../../../lib/api";
 import { verifyPassword } from "../../../lib/password";
+import {
+  checkLoginAllowed,
+  loginAttemptKey,
+  recordLoginFailure,
+  recordLoginSuccess,
+} from "../../../lib/rate-limit";
 
 const bodySchema = z.object({
   email: z.string().email("Format email tidak valid"),
@@ -23,6 +29,19 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const db = getDb();
+  const attemptKey = loginAttemptKey(req, parsed.data.email);
+  const limit = checkLoginAllowed(db, attemptKey);
+  if (!limit.allowed) {
+    res.setHeader("Retry-After", String(limit.retryAfterSeconds || 900));
+    return fail(
+      res,
+      429,
+      `Terlalu banyak percobaan login. Coba lagi dalam ${Math.ceil(
+        (limit.retryAfterSeconds || 900) / 60,
+      )} menit.`,
+    );
+  }
+
   const row = db
     .prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1")
     .get(parsed.data.email) as
@@ -38,11 +57,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     | undefined;
 
   if (!row || !verifyPassword(parsed.data.password, row.password_hash)) {
+    recordLoginFailure(db, attemptKey);
     return fail(res, 401, "Email atau password salah.");
   }
   if (row.status !== "active") {
     return fail(res, 403, "Akun ini dinonaktifkan. Hubungi Admin.");
   }
+  recordLoginSuccess(db, attemptKey);
 
   const token = createSessionToken(Number(row.id));
   res.setHeader("Set-Cookie", sessionCookie(token));

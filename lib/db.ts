@@ -103,6 +103,13 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS login_attempts (
+  key TEXT PRIMARY KEY,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  first_attempt_at TEXT NOT NULL,
+  locked_until TEXT
+);
+
 CREATE TABLE IF NOT EXISTS shifts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -358,6 +365,14 @@ function seed(db: SqliteDatabase) {
     hashPassword("operator123"),
     "Operator Gate",
     "operator",
+    null,
+    iso,
+  );
+  insertUser.run(
+    "viewer@parkline.id",
+    hashPassword("viewer123"),
+    "Viewer Operasional",
+    "viewer",
     null,
     iso,
   );

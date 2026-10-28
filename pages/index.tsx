@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../helpers/useAuth";
+import { homePathForRole } from "../helpers/home";
 import { AuthLoadingState } from "../components/AuthLoadingState";
 
 export default function HomePage() {
@@ -9,7 +10,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (authState.type === "authenticated") {
-      router.replace("/cashier");
+      router.replace(homePathForRole(authState.user.role));
     } else if (authState.type === "unauthenticated") {
       router.replace("/login");
     }
