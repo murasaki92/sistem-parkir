@@ -13,6 +13,8 @@ aplikasi Next.js lengkap dengan database SQLite lokal.
 
 - Login berbasis role: Admin, Supervisor, Kasir, Operator, Viewer.
 - Terminal kasir: cari tiket/QR, hitung tarif, update plat, bayar, cetak struk.
+- Live Gate Out di kasir: feed kamera/snapshot, status gate & barrier, kendaraan
+  terakhir keluar, command terakhir, dan riwayat keluar.
 - Shift kasir: saldo awal, expected cash, selisih saat tutup shift.
 - Gate masuk idempotent per `eventId`, alokasi slot otomatis, tiket + QR.
 - Command queue perangkat: barrier, kamera, printer, heartbeat, retry.
@@ -147,7 +149,7 @@ BASE_URL=http://localhost:3100 npm run smoke
 pages/
   login.tsx, cashier.tsx, admin.tsx, operations.tsx
   api/auth/*                 login, session, logout, change password
-  api/parking/*              kasir, tarif, shift, membership, laporan, backup
+  api/parking/*              kasir, gate live, tarif, shift, membership, laporan, backup
   api/device/parking/*       protokol perangkat (rewrite dari /_api/parking/*)
 lib/
   db.ts                      schema SQLite, migrasi ringan, seed

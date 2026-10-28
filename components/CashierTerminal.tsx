@@ -7,6 +7,7 @@ import { Button } from "./Button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./Dialog";
 import { Input } from "./Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./Select";
+import { GateOutLive } from "./GateOutLive";
 import styles from "./CashierTerminal.module.css";
 
 const rupiah = (value: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
@@ -118,6 +119,7 @@ export function CashierTerminal() {
   const gates = devices.filter(d => d.status === "active" && d.deviceType === "gate" && d.gateDirection === "out");
   const printers = devices.filter(d => d.status === "active" && d.deviceType === "printer");
   const selectedGate = gates.find(d => d.deviceCode === exitDeviceCode);
+  const liveGateCode = selectedGate?.deviceCode || gates[0]?.deviceCode || "";
 
   return <div className={styles.terminal}>
     <div className={styles.header}>
@@ -129,6 +131,7 @@ export function CashierTerminal() {
       <div className={styles.shiftActions}>{shift ? <Button variant="outline" onClick={()=>setShiftCloseDialog(true)}>Tutup shift</Button> : <Button onClick={()=>setShiftOpenDialog(true)} disabled={!shiftLoaded}>Buka shift</Button>}</div>
     </section>
     {shiftError && <div className={styles.error}><XCircle size={16}/>{shiftError}</div>}
+    <GateOutLive deviceCode={liveGateCode} />
     <div className={styles.workflow}>
       <section className={styles.step}>
         <div className={styles.stepTitle}><span>01</span><div><strong>Identifikasi tiket</strong><small>Scan QR / barcode; nomor tiket atau token QR sama-sama diterima.</small></div></div>

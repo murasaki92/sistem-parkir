@@ -192,6 +192,17 @@ async function main() {
     `pembayaran berhasil (${pay.body?.receiptNo})`,
   );
 
+  const liveGate = await request(
+    `/api/parking/gateOutLive?deviceCode=${encodeURIComponent(GATE_OUT_CODE)}`,
+    { cookie },
+  );
+  check(
+    liveGate.status === 200 &&
+      liveGate.body?.device?.deviceCode === GATE_OUT_CODE &&
+      Array.isArray(liveGate.body?.recentExits),
+    "live gate out dapat dibaca",
+  );
+
   const commands = await request(
     `/api/parking/commandStatus?ticketNo=${encodeURIComponent(ticketNo)}`,
     { cookie },
